@@ -1,0 +1,197 @@
+#include "sfall/sfall.h"
+
+procedure barterPriceHandler;
+procedure combatTurnHandler;
+procedure encounterHandler;
+procedure gameModeChangeHandler;
+procedure inventoryMoveHandler;
+procedure keyPressHandler;
+procedure onDeathHandler;
+procedure rollCheckHandler;
+procedure sneakHandler;
+procedure stdProcedureHandler;
+procedure useSkillHandler;
+procedure useSkillOnHandler;
+procedure withinPerceptionHandler;
+
+procedure start begin
+  if game_loaded then begin
+    display_msg("Procedure start is called.");
+
+    register_hook_proc(HOOK_BARTERPRICE, barterPriceHandler);
+    register_hook_proc(HOOK_COMBATTURN, combatTurnHandler);
+    register_hook_proc(HOOK_ENCOUNTER, encounterHandler);
+    register_hook_proc(HOOK_GAMEMODECHANGE, gameModeChangeHandler);
+    register_hook_proc(HOOK_INVENTORYMOVE, inventoryMoveHandler);
+    register_hook_proc(HOOK_KEYPRESS, keyPressHandler);
+    register_hook_proc(HOOK_ONDEATH, onDeathHandler);
+    register_hook_proc(HOOK_ROLLCHECK, rollCheckHandler);
+    register_hook_proc(HOOK_SNEAK, sneakHandler);
+    register_hook_proc(HOOK_STDPROCEDURE, stdProcedureHandler);
+    register_hook_proc(HOOK_USESKILL, useSkillHandler);
+    register_hook_proc(HOOK_USESKILLON, useSkillOnHandler);
+    register_hook_proc(HOOK_WITHINPERCEPTION, withinPerceptionHandler);
+  end
+end
+
+procedure barterPriceHandler begin
+  variable
+    offeredPrice := get_sfall_arg_at(2),
+    offeredPriceUnmodified := get_sfall_arg_at(5);
+
+  display_msg(
+    "HOOK_BARTERPRICE. offeredPrice: " + offeredPrice +
+    ", offeredPriceUnmodified: " + offeredPriceUnmodified +
+    "."
+  );
+end
+
+procedure combatTurnHandler begin
+  variable
+    eventType := get_sfall_arg_at(0);
+
+  display_msg(
+    "HOOK_COMBATTURN. eventType: " + eventType +
+    "."
+  );
+end
+
+procedure encounterHandler begin
+  variable
+    eventType := get_sfall_arg_at(0),
+    isSpecialEncounter := get_sfall_arg_at(2);
+
+  display_msg(
+    "HOOK_ENCOUNTER. eventType: " + eventType +
+    ", isSpecialEncounter: " + isSpecialEncounter +
+    "."
+  );
+end
+
+procedure gameModeChangeHandler begin
+  variable
+    eventType := get_sfall_arg_at(0),
+    previousGameMode := get_sfall_arg_at(1);
+
+  display_msg(
+    "HOOK_GAMEMODECHANGE. eventType: " + eventType +
+    ", previousGameMode: " + previousGameMode +
+    "."
+  );
+end
+
+procedure inventoryMoveHandler begin
+  variable
+    targetSlot := get_sfall_arg_at(0),
+    movedItem := get_sfall_arg_at(1),
+    replacedItem := get_sfall_arg_at(2);
+
+  display_msg(
+    "HOOK_INVENTORYMOVE. targetSlot: " + targetSlot +
+    ", movedItem: " + movedItem +
+    ", movedItemPid: " + obj_pid(movedItem) +
+    ", movedItemSubtype: " + obj_item_subtype(movedItem) + // "0" = armor.
+    ", movedItemName: " + obj_name(movedItem) +
+    ", replacedItem: " + replacedItem +
+    "."
+  );
+end
+
+procedure keyPressHandler begin
+  variable
+    eventType := get_sfall_arg_at(0),
+    keyCode := get_sfall_arg_at(1);
+
+  display_msg(
+    "HOOK_KEYPRESS. eventType: " + eventType +
+    ", keyCode: " + keyCode +
+    "."
+  );
+end
+
+procedure onDeathHandler begin
+  variable
+    critter := get_sfall_arg_at(0);
+
+  display_msg(
+    "HOOK_ONDEATH. critter: " + critter +
+    "."
+  );
+end
+
+procedure rollCheckHandler begin
+  variable
+    eventType := get_sfall_arg_at(0),
+    rollSuccess := is_success(get_sfall_arg_at(1));
+
+  display_msg(
+    "HOOK_ROLLCHECK. eventType: " + eventType +
+    ", rollSuccess: " + rollSuccess +
+    "."
+  );
+end
+
+procedure sneakHandler begin
+  variable
+    sneakRollSuccess := is_success(get_sfall_arg_at(0)),
+    sneakCheckDuration := get_sfall_arg_at(1);
+
+  display_msg(
+    "HOOK_SNEAK. sneakRollSuccess: " + sneakRollSuccess +
+    ", sneakCheckDuration: " + sneakCheckDuration +
+    "."
+  );
+end
+
+procedure stdProcedureHandler begin
+  variable
+    standardProcedure := get_sfall_arg_at(0),
+    sourceObject := get_sfall_arg_at(2),
+    targetObject := get_sfall_arg_at(4),
+    parameter := get_sfall_arg_at(5);
+
+  display_msg(
+    "HOOK_STDPROCEDURE. standardProcedure: " + standardProcedure +
+    ", sourceObject: " + sourceObject +
+    ", targetObject: " + targetObject +
+    ", parameter: " + parameter +
+    "."
+  );
+end
+
+procedure useSkillHandler begin
+  variable
+    skill := get_sfall_arg_at(2);
+
+  display_msg(
+    "HOOK_USESKILL. skill: " + skill +
+    "."
+  );
+end
+
+procedure useSkillOnHandler begin
+  variable
+    skill := get_sfall_arg_at(2);
+
+  display_msg(
+    "HOOK_USESKILLON. skill: " + skill +
+    "."
+  );
+end
+
+procedure withinPerceptionHandler begin
+  variable
+    watcher := get_sfall_arg_at(0),
+    target := get_sfall_arg_at(1),
+    withinPerception := get_sfall_arg_at(2),
+    hookType := get_sfall_arg_at(3);
+
+  if combat_is_initialized then
+    display_msg(
+      "HOOK_WITHINPERCEPTION. watcher: " + watcher +
+      ", target: " + target +
+      ", withinPerception: " + withinPerception +
+      ", hookType: " + hookType +
+      "."
+    );
+end
