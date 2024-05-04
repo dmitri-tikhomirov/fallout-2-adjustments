@@ -1,4 +1,4 @@
-#include "sfall/sfall.h"
+#include "../source-headers/sfall/sfall.h"
 
 procedure barterPriceHandler;
 procedure combatTurnHandler;

@@ -1,0 +1,39 @@
+#include "../source-headers/sfall/sfall.h"
+
+#define INI_PATH "mods\\fallout-2-adjustments.ini"
+
+variable
+  priceCap;
+
+procedure barterPriceHandler;
+
+procedure start begin
+  if game_loaded then begin
+    priceCap := atof(get_ini_string(INI_PATH "|priceCap|priceCap"));
+    // display_msg("priceCap: " + priceCap + ".");
+
+    // If disabled in settings, do not do anything else.
+    if priceCap == 0 orElse priceCap == -1 then return;
+
+    register_hook_proc(HOOK_BARTERPRICE, barterPriceHandler);
+  end
+end
+
+procedure barterPriceHandler begin
+  variable
+    merchant := get_sfall_arg_at(1),
+    offeredPrice := get_sfall_arg_at(2),
+    offeredPriceUnmodified := get_sfall_arg_at(5),
+    minPrice := floor(offeredPriceUnmodified * priceCap);
+
+  if party_member_obj(obj_pid(merchant)) then return;
+
+  // display_msg(
+  //   "offeredPrice: " + offeredPrice +
+  //   ", offeredPriceUnmodified: " + offeredPriceUnmodified +
+  //   ", minPrice: " + minPrice +
+  //   "."
+  // );
+
+  if offeredPrice < minPrice then set_sfall_return(minPrice);
+end
