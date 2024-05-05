@@ -36,8 +36,8 @@ end
 
 procedure barterPriceHandler begin
   variable
-    offeredPrice := get_sfall_arg_at(2),
-    offeredPriceUnmodified := get_sfall_arg_at(5);
+    offeredPrice = get_sfall_arg_at(2),
+    offeredPriceUnmodified = get_sfall_arg_at(5);
 
   display_msg(
     "HOOK_BARTERPRICE. offeredPrice: " + offeredPrice +
@@ -48,7 +48,7 @@ end
 
 procedure combatTurnHandler begin
   variable
-    eventType := get_sfall_arg_at(0);
+    eventType = get_sfall_arg_at(0);
 
   display_msg(
     "HOOK_COMBATTURN. eventType: " + eventType +
@@ -58,8 +58,8 @@ end
 
 procedure encounterHandler begin
   variable
-    eventType := get_sfall_arg_at(0),
-    isSpecialEncounter := get_sfall_arg_at(2);
+    eventType = get_sfall_arg_at(0),
+    isSpecialEncounter = get_sfall_arg_at(2);
 
   display_msg(
     "HOOK_ENCOUNTER. eventType: " + eventType +
@@ -70,21 +70,23 @@ end
 
 procedure gameModeChangeHandler begin
   variable
-    eventType := get_sfall_arg_at(0),
-    previousGameMode := get_sfall_arg_at(1);
+    eventType = get_sfall_arg_at(0),
+    previousGameMode = get_sfall_arg_at(1),
+    currentGameMode = get_game_mode;
 
   display_msg(
     "HOOK_GAMEMODECHANGE. eventType: " + eventType +
     ", previousGameMode: " + previousGameMode +
+    ", currentGameMode: " + currentGameMode +
     "."
   );
 end
 
 procedure inventoryMoveHandler begin
   variable
-    targetSlot := get_sfall_arg_at(0),
-    movedItem := get_sfall_arg_at(1),
-    replacedItem := get_sfall_arg_at(2);
+    targetSlot = get_sfall_arg_at(0),
+    movedItem = get_sfall_arg_at(1),
+    replacedItem = get_sfall_arg_at(2);
 
   display_msg(
     "HOOK_INVENTORYMOVE. targetSlot: " + targetSlot +
@@ -99,8 +101,8 @@ end
 
 procedure keyPressHandler begin
   variable
-    eventType := get_sfall_arg_at(0),
-    keyCode := get_sfall_arg_at(1);
+    eventType = get_sfall_arg_at(0),
+    keyCode = get_sfall_arg_at(1);
 
   display_msg(
     "HOOK_KEYPRESS. eventType: " + eventType +
@@ -111,7 +113,7 @@ end
 
 procedure onDeathHandler begin
   variable
-    critter := get_sfall_arg_at(0);
+    critter = get_sfall_arg_at(0);
 
   display_msg(
     "HOOK_ONDEATH. critter: " + critter +
@@ -121,8 +123,8 @@ end
 
 procedure rollCheckHandler begin
   variable
-    eventType := get_sfall_arg_at(0),
-    rollSuccess := is_success(get_sfall_arg_at(1));
+    eventType = get_sfall_arg_at(0),
+    rollSuccess = is_success(get_sfall_arg_at(1));
 
   display_msg(
     "HOOK_ROLLCHECK. eventType: " + eventType +
@@ -133,8 +135,8 @@ end
 
 procedure sneakHandler begin
   variable
-    sneakRollSuccess := is_success(get_sfall_arg_at(0)),
-    sneakCheckDuration := get_sfall_arg_at(1);
+    sneakRollSuccess = is_success(get_sfall_arg_at(0)),
+    sneakCheckDuration = get_sfall_arg_at(1);
 
   display_msg(
     "HOOK_SNEAK. sneakRollSuccess: " + sneakRollSuccess +
@@ -145,10 +147,10 @@ end
 
 procedure stdProcedureHandler begin
   variable
-    standardProcedure := get_sfall_arg_at(0),
-    sourceObject := get_sfall_arg_at(2),
-    targetObject := get_sfall_arg_at(4),
-    parameter := get_sfall_arg_at(5);
+    standardProcedure = get_sfall_arg_at(0),
+    sourceObject = get_sfall_arg_at(2),
+    targetObject = get_sfall_arg_at(4),
+    parameter = get_sfall_arg_at(5);
 
   display_msg(
     "HOOK_STDPROCEDURE. standardProcedure: " + standardProcedure +
@@ -161,7 +163,7 @@ end
 
 procedure useSkillHandler begin
   variable
-    skill := get_sfall_arg_at(2);
+    skill = get_sfall_arg_at(2);
 
   display_msg(
     "HOOK_USESKILL. skill: " + skill +
@@ -171,7 +173,7 @@ end
 
 procedure useSkillOnHandler begin
   variable
-    skill := get_sfall_arg_at(2);
+    skill = get_sfall_arg_at(2);
 
   display_msg(
     "HOOK_USESKILLON. skill: " + skill +
@@ -181,10 +183,10 @@ end
 
 procedure withinPerceptionHandler begin
   variable
-    watcher := get_sfall_arg_at(0),
-    target := get_sfall_arg_at(1),
-    withinPerception := get_sfall_arg_at(2),
-    hookType := get_sfall_arg_at(3);
+    watcher = get_sfall_arg_at(0),
+    target = get_sfall_arg_at(1),
+    withinPerception = get_sfall_arg_at(2),
+    hookType = get_sfall_arg_at(3);
 
   if combat_is_initialized then
     display_msg(

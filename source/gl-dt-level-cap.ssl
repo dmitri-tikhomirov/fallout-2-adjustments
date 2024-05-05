@@ -1,0 +1,22 @@
+#include "../source-headers/sfall/sfall.h"
+#include "../source-headers/fallout-2-adjustments.h"
+
+procedure start begin
+  if game_loaded then begin
+    variable levelCap = get_ini_setting(INI_PATH "|levelCap|levelCap");
+
+    if levelCap == 0 orElse levelCap == -1 then return;
+
+    variable xpTable = "", i;
+
+    for (i = 2; i <= levelCap; i++) begin
+      xpTable += 500 * i * (i - 1);
+
+      if i != levelCap then xpTable += ",";
+    end
+
+    // Do not edit the file if the required level cap is already set.
+    if xpTable != get_ini_string(SFALL_INI_PATH "|Misc|XPTable") then
+      set_ini_setting(SFALL_INI_PATH "|Misc|XPTable", xpTable);
+  end
+end
