@@ -19,19 +19,20 @@ end
 
 procedure barterPriceHandler begin
   variable
-    merchant = get_sfall_arg_at(1),
     offeredPrice = get_sfall_arg_at(2),
     offeredPriceUnmodified = get_sfall_arg_at(5),
+    tradingWithPartyMember = get_sfall_arg_at(9),
     minPrice = floor(offeredPriceUnmodified * priceCap);
-
-  if party_member_obj(obj_pid(merchant)) then return;
 
   // display_msg(
   //   "offeredPrice: " + offeredPrice +
   //   ", offeredPriceUnmodified: " + offeredPriceUnmodified +
+  //   ", tradingWithPartyMember: " + tradingWithPartyMember +
   //   ", minPrice: " + minPrice +
   //   "."
   // );
+
+  if tradingWithPartyMember then return;
 
   if offeredPrice < minPrice then set_sfall_return(minPrice);
 end

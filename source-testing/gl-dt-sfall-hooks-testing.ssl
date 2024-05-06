@@ -37,11 +37,13 @@ end
 procedure barterPriceHandler begin
   variable
     offeredPrice = get_sfall_arg_at(2),
-    offeredPriceUnmodified = get_sfall_arg_at(5);
+    offeredPriceUnmodified = get_sfall_arg_at(5),
+    tradingWithPartyMember = get_sfall_arg_at(9);
 
   display_msg(
     "HOOK_BARTERPRICE. offeredPrice: " + offeredPrice +
     ", offeredPriceUnmodified: " + offeredPriceUnmodified +
+    ", tradingWithPartyMember: " + tradingWithPartyMember +
     "."
   );
 end
