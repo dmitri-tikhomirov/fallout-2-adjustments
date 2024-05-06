@@ -14,8 +14,18 @@ The mod is fully modular. Each component can be disabled in the `.ini` file.
 
 - Price cap
   - Prevents buying for a lower price than what you sell for, avoiding one of the ways to break the economy.
+- Custom keyboard controls. Default settings:
+  - Keys for opening Inventory and Skilldex now also close them.
+  - `E`: Inventory.
+  - `Q`: Pip-Boy. "Q" for "Quests".
+  - `V`: Center camera on the player. "V" for "View".
+  - Save and loading keys are changed to be further apart and harder to mix up:
+    - `F4`: Save game (unchanged).
+    - `F5`: Quick save.
+    - `F8`: Quick load.
+    - `F9`: Load game.
 - Level cap
-  - Puts an optional level cap on the player to make the game harder. You will still accumulate experience as normal after reaching the cap, but you won't get another level.
+  - Disabled by default. Puts an optional level cap on the player to make the game harder. You will still accumulate experience as normal after reaching the cap, but you won't get another level.
 
 More explanations in `mods\fallout-2-adjustments.ini`.
 
@@ -26,7 +36,7 @@ The mod requires [Sfall](https://github.com/sfall-team/sfall). Sfall is already 
 To install the mod:
 
 1. Put the contents of the `mods` folder (the `fallout-2-adjustments` folder and `fallout-2-adjustments.ini`) to your `mods` folder.
-2. If you have `mods_order.txt` inside your `mods` folder, add `fallout-2-adjustments` to it.
+2. If you have `mods_order.txt` inside your `mods` folder, add `fallout-2-adjustments` (this exact line) to it.
 3. To configure settings, edit `fallout-2-adjustments.ini`.
 
 To uninstall, delete the files. To disable without deleting, remove the line from `mods_order.txt`.

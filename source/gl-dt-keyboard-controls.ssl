@@ -1,21 +1,96 @@
 #include "../source-headers/sfall/sfall.h"
 #include "../source-headers/fallout-2-adjustments.h"
 
+variable
+  keyMapping,
+  disabledKeys,
+  openCloseWithSameKey,
+  needToSetReleased;
+
 procedure keyPressHandler;
 procedure getKeyCode(variable key);
 
 procedure start begin
   if game_loaded then begin
-    register_hook_proc(HOOK_KEYPRESS, keyPressHandler);
+    if get_ini_setting(INI_PATH "|keyboardControls|customControlsEnabled") == 1
+        then begin
+      keyMapping = get_ini_section(INI_PATH, "keyboardControlsMapping");
+
+      variable defaultKey, customKey;
+
+      // Convert key names to codes.
+      foreach (defaultKey: customKey in keyMapping) begin
+        defaultKey = getKeyCode(defaultKey);
+        keyMapping[defaultKey] = getKeyCode(customKey);
+        // display_msg(defaultKey + "=" + keyMapping[defaultKey]);
+      end
+
+      fix_array(keyMapping);
+
+      disabledKeys = string_split(
+        get_ini_string(INI_PATH "|keyboardControls|disabledKeys"), ",");
+
+      variable disabledKey, index;
+
+      // Convert key names to codes.
+      foreach (index: disabledKey in disabledKeys) begin
+        disabledKeys[index] = getKeyCode(disabledKey);
+        // display_msg("disabledKeys[" + index + "]: " + disabledKeys[index]);
+      end
+
+      fix_array(disabledKeys);
+
+      openCloseWithSameKey =
+        get_ini_setting(INI_PATH "|keyboardControls|openCloseWithSameKey");
+
+      register_hook_proc(HOOK_KEYPRESS, keyPressHandler);
+    end
   end
 end
 
 procedure keyPressHandler begin
   variable
-    pressedKeyCode := get_sfall_arg_at(1);
+    pressedNotReleased = get_sfall_arg,
+    pressedKey = get_sfall_arg,
+    mappedDefaultKey = scan_array(keyMapping, pressedKey);
+
+  // display_msg("pressedNotReleased: " + pressedNotReleased);
+  // display_msg("pressedKey: " + pressedKey);
+  // display_msg("mappedDefaultKey: " + mappedDefaultKey);
+  // display_msg("Inventory mode: " + (get_game_mode bwand INVENTORY));
+  // display_msg("Skilldex mode: " + (get_game_mode bwand SKILLDEX));
+
+  if openCloseWithSameKey == 1 then begin
+    // Close Inventory window with the same key.
+    // Game mode changes before you release the key,
+    // but you need to set both to override correctly.
+    if (get_game_mode bwand INVENTORY andAlso pressedNotReleased orElse
+        needToSetReleased) andAlso
+        (mappedDefaultKey == 23 orElse pressedKey == 23) then begin
+      if pressedNotReleased then needToSetReleased = true;
+        else needToSetReleased = false;
+
+      set_sfall_return(getKeyCode("Esc"));
+    end
+
+    // Close Skilldex window with the same key.
+    if (get_game_mode bwand SKILLDEX andAlso pressedNotReleased orElse
+        needToSetReleased) andAlso
+        (mappedDefaultKey == 31 orElse pressedKey == 31) then begin
+      if pressedNotReleased then needToSetReleased = true;
+        else needToSetReleased = false;
+
+      set_sfall_return(getKeyCode("Esc"));
+    end
+  end
+
+  if mappedDefaultKey != -1 then set_sfall_return(mappedDefaultKey);
+
+  if scan_array(disabledKeys, pressedKey) != -1 then
+    set_sfall_return(getKeyCode("DISABLED"));
 end
 
-// DirectX scancodes (DX codes) for pressed keys.
+// DirectX scancodes (DX codes) for input keys.
 procedure getKeyCode(variable key) begin
   variable keyCodes = {
     "ESC":          1,
@@ -37,7 +112,6 @@ procedure getKeyCode(variable key) begin
     "+":            13,
     "EQUALS":       13,
     "BACKSPACE":    14,
-    "BACK":         14,
     "TAB":          15,
     "Q":            16,
     "W":            17,
@@ -83,11 +157,11 @@ procedure getKeyCode(variable key) begin
     "~":            41,
     "BACKTICK":     41,
     "TILDE":        41,
-    "CONSOLE":      41,
     "SHIFT":        42,
     "LEFTSHIFT":    42,
     "LSHIFT":       42,
     "\\":           43,
+    "|":            43,
     "BACKSLASH":    43,
     "Z":            44,
     "X":            45,
@@ -103,6 +177,7 @@ procedure getKeyCode(variable key) begin
     ">":            52,
     "PERIOD":       52,
     "/":            53,
+    "?":            53,
     "SLASH":        53,
     "FORWARDSLASH": 53,
     "RIGHTSHIFT":   54,
@@ -113,9 +188,6 @@ procedure getKeyCode(variable key) begin
     "ALT":          56,
     "LEFTALT":      56,
     "LALT":         56,
-    "MENU":         56,
-    "LEFTMENU":     56,
-    "LMENU":        56,
     "SPACE":        57,
     "SPACEBAR":     57,
     "CAPSLOCK":     58,
@@ -193,7 +265,10 @@ procedure getKeyCode(variable key) begin
     "INSERT":       210,
     "INS":          210,
     "DELETE":       211,
-    "DEL":          211
+    "DEL":          211,
+
+    // A code to disable keys.
+    "DISABLED":     256
   };
 
   key = string_toupper(key);
