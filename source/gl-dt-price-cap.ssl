@@ -8,6 +8,7 @@ procedure barterPriceHandler;
 procedure start begin
   if game_loaded then begin
     priceCap = atof(get_ini_string(INI_PATH "|priceCap|priceCap"));
+
     // display_msg("priceCap: " + priceCap + ".");
 
     // If disabled in settings, do not do anything else.

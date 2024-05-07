@@ -1,0 +1,97 @@
+#include "../source-headers/sfall/sfall.h"
+#include "../source-headers/fallout-2-adjustments.h"
+
+variable
+  armorRestrictions,
+  weaponRestrictions;
+
+procedure inventoryMoveHandler;
+procedure getArmorPid(variable armor);
+
+procedure start begin
+  if game_loaded then begin
+    armorRestrictions =
+      get_ini_string(INI_PATH "|equipmentRestrictions|armorRestrictions");
+    weaponRestrictions =
+      get_ini_string(INI_PATH "|equipmentRestrictions|weaponRestrictions");
+
+    if armorRestrictions != "" orElse weaponRestrictions != "" then begin
+      // display_msg("This should not print if disabled.");
+
+      armorRestrictions = string_split(armorRestrictions, ",");
+      weaponRestrictions = string_split(weaponRestrictions, ",");
+
+      variable armor, index;
+
+      // Convert to PIDs.
+      foreach index: armor in armorRestrictions begin
+        // display_msg("armor: " + armor);
+        // display_msg("armor PID: " + getArmorPid(armor));
+
+        armorRestrictions[index] = getArmorPid(armor);
+      end
+
+      fix_array(armorRestrictions);
+
+      variable weapon;
+
+      // Convert to integers.
+      foreach index: weapon in weaponRestrictions
+        weaponRestrictions[index] = atoi(weapon);
+
+      fix_array(weaponRestrictions);
+
+      register_hook_proc(HOOK_INVENTORYMOVE, inventoryMoveHandler);
+    end
+  end
+end
+
+procedure inventoryMoveHandler begin
+  variable
+    targetSlot = get_sfall_arg,
+    movedItem = get_sfall_arg;
+
+  // Armor restrictions.
+  if targetSlot == 3 andAlso
+      obj_item_subtype(movedItem) == 0 andAlso // "0" = armor.
+      scan_array(armorRestrictions, obj_pid(movedItem)) != -1 then begin
+    set_sfall_return(0);
+
+    display_msg("Cannot equip " + obj_name(movedItem) + ".");
+  end
+
+  // Weapon restrictions.
+  if (targetSlot == 1 or targetSlot == 2) andAlso
+      obj_item_subtype(movedItem) == 3 andAlso // "3" = weapon.
+      scan_array(weaponRestrictions, obj_pid(movedItem)) != -1 then begin
+    set_sfall_return(0);
+
+    display_msg("Cannot equip " + obj_name(movedItem) + ".");
+  end
+end
+
+procedure getArmorPid(variable armor) begin
+  variable armorPids = {
+    "ROBES":                      113,
+    "BRIDGEKEEPERS_ROBES":        524,
+    "LEATHER_JACKET":             74,
+    "COMBAT_LEATHER_JACKET":      265,
+    "LEATHER_ARMOR":              1,
+    "LEATHER_ARMOR_MK_II":        379,
+    "METAL_ARMOR":                2,
+    "METAL_ARMOR_MK_II":          380,
+    "TESLA_ARMOR":                240,
+    "COMBAT_ARMOR":               17,
+    "COMBAT_ARMOR_MK_II":         381,
+    "BROTHERHOOD_ARMOR":          239,
+    "POWER_ARMOR":                3,
+    "HARDENED_POWER_ARMOR":       232,
+    "ADVANCED_POWER_ARMOR":       348,
+    "ADVANCED_POWER_ARMOR_MK_II": 349
+  };
+
+  armor = string_toupper(armor);
+
+  if armorPids[armor] then return armorPids[armor];
+    else return atoi(armor);
+end

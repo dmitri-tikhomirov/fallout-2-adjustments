@@ -1,7 +1,5 @@
 # Fallout 2 Adjustments
 
-The mod is available to anyone, but it is not meant as a public release and might not adhere to all standards of one. It's something I wrote and used for myself in my own playthroughs.
-
 This is a collection of minimalistic mods that aim to keep the game largely vanilla and either:
 
 1. Fix certain game imbalances.
@@ -12,7 +10,7 @@ The mod is fully modular. Each component can be disabled in the `.ini` file.
 
 ## Components
 
-- Price cap
+- Price cap.
   - Prevents buying for a lower price than what you sell for, avoiding one of the ways to break the economy.
 - Custom keyboard controls. Default settings:
   - Keys for opening Inventory and Skilldex now also close them.
@@ -24,8 +22,10 @@ The mod is fully modular. Each component can be disabled in the `.ini` file.
     - `F5`: Quick save.
     - `F8`: Quick load.
     - `F9`: Load game.
-- Level cap
+- Level cap.
   - Disabled by default. Puts an optional level cap on the player to make the game harder. You will still accumulate experience as normal after reaching the cap, but you won't get another level.
+- Equipment restrictions.
+  - Disabled by default. Puts optional restrictions on armor and weapons the player can use. For example, you can restrict all kinds of power armor for a "no power armor" playthrough.
 
 More explanations in `mods\fallout-2-adjustments.ini`.
 
@@ -47,8 +47,15 @@ If two mods change the same thing, disable the affected component in one or the 
 
 ## Recommended mods
 
+For a close to vanilla but improved playthrough:
+
 - [Restoration Project, updated](https://github.com/BGforgeNet/Fallout2_Restoration_Project)
 - [Pixote's updated RP maps](https://www.nma-fallout.com/threads/pixotes-updated-rp-maps.222207/)
   - Maps for Restoration Project that look closer to the original game.
 - [FO2tweaks](https://github.com/BGforgeNet/FO2tweaks/)
   - Contains a good damage formula with options to disable everything else, if needed.
+
+For a different gameplay experience:
+
+- [EcCo Gameplay Overhaul](https://github.com/phobos2077/fo2_ecco)
+- [Fallout2MechanicsMiniRework](https://github.com/dekrus/Fallout2MechanicsMiniRework)

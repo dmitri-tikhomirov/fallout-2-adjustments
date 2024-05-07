@@ -22,6 +22,7 @@ procedure start begin
       foreach (defaultKey: customKey in keyMapping) begin
         defaultKey = getKeyCode(defaultKey);
         keyMapping[defaultKey] = getKeyCode(customKey);
+
         // display_msg(defaultKey + "=" + keyMapping[defaultKey]);
       end
 
@@ -35,6 +36,7 @@ procedure start begin
       // Convert key names to codes.
       foreach (index: disabledKey in disabledKeys) begin
         disabledKeys[index] = getKeyCode(disabledKey);
+
         // display_msg("disabledKeys[" + index + "]: " + disabledKeys[index]);
       end
 
