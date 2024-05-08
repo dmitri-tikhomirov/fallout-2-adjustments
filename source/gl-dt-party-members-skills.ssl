@@ -8,7 +8,7 @@ procedure gameModeChangeHandler;
 procedure start begin
   if game_loaded then begin
     if get_ini_setting(
-        INI_PATH "|partyMemberSkills|preventPartyMembersBarter") == 1 then
+        INI_PATH "|partyMembersSkills|preventPartyMembersBarter") == 1 then
       register_hook_proc(HOOK_GAMEMODECHANGE, gameModeChangeHandler);
   end
 end

@@ -6,7 +6,7 @@ This is a collection of minimalistic mods that aim to keep the game largely vani
 2. Add quality of life features.
 3. Put optional restrictions on the player for a more challenging playthrough.
 
-The mod is fully modular. Each component can be disabled in the `.ini` file.
+The mod is fully modular. Each component can be disabled in the `.ini` file. Disabled components will not be running and won't take any resources.
 
 ## Components
 
@@ -28,6 +28,8 @@ The mod is fully modular. Each component can be disabled in the `.ini` file.
   - Disabled by default. Puts optional restrictions on armor and weapons the player can use. For example, you can restrict all kinds of power armor for a "no power armor" playthrough.
 - Party members' skills do not replace the player's skills.
   - Prevents a party member's barter skill replacing the player's barter skill. The unfixed mechanic in vanilla game made the barter skill largely irrelevant, allowing you to rely on companions instead of investing in your own skill.
+- Settings transfer.
+  - Disabled by default. A tool to help you automatically transfer settings between old and new `.ini` files. Useful when updating mods if you have a lot of custom settings. Do not enable if you are not sure what exactly this component does.
 
 More explanations in `mods\fallout-2-adjustments.ini`.
 

@@ -69,7 +69,7 @@ procedure keyPressHandler begin
         needToSetReleased) andAlso
         (mappedDefaultKey == 23 orElse pressedKey == 23) then begin
       if pressedNotReleased then needToSetReleased = true;
-        else needToSetReleased = false;
+      else needToSetReleased = false;
 
       set_sfall_return(getKeyCode("Esc"));
     end
@@ -79,7 +79,7 @@ procedure keyPressHandler begin
         needToSetReleased) andAlso
         (mappedDefaultKey == 31 orElse pressedKey == 31) then begin
       if pressedNotReleased then needToSetReleased = true;
-        else needToSetReleased = false;
+      else needToSetReleased = false;
 
       set_sfall_return(getKeyCode("Esc"));
     end

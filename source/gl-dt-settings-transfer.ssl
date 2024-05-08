@@ -1,0 +1,49 @@
+#include "headers/sfall/sfall.h"
+#include "headers/fallout-2-adjustments.h"
+
+procedure start begin
+  if game_loaded then begin
+    variable
+      compare = get_ini_setting(INI_PATH "|settingsTransfer|compare"),
+      transfer = get_ini_setting(INI_PATH "|settingsTransfer|transfer");
+
+    if (compare == 0 orElse compare == -1) andAlso
+        (transfer == 0 orElse transfer == -1) then
+      return;
+    else begin
+      display_msg("Checking settings...");
+
+      if transfer == 1 then display_msg("Transfer is on.");
+      else display_msg("Transfer is off.");
+    end
+
+    variable
+      oldIniPath = get_ini_string(INI_PATH "|settingsTransfer|oldIniPath"),
+      newIniPath = get_ini_string(INI_PATH "|settingsTransfer|newIniPath"),
+      excludedSettings = string_split(
+        get_ini_string(INI_PATH "|settingsTransfer|excludedSettings"), ","),
+      oldIniConfig = get_ini_config(oldIniPath),
+      section, settings,
+      setting, value;
+
+    // foreach setting in excludedSettings
+    //   display_msg(setting + " is excluded.");
+
+    foreach section: settings in oldIniConfig
+      foreach setting: value in settings begin
+        variable
+          settingNewIniFullPath = newIniPath + "|" + section + "|" + setting;
+
+        if get_ini_setting(settingNewIniFullPath) == -1 andAlso
+            get_ini_string(settingNewIniFullPath) != "-1" then begin
+          if compare == 1 then display_msg(setting + " is missing.");
+        end
+        else
+          if transfer == 1 andAlso
+              scan_array(excludedSettings, setting) == -1 then
+            set_ini_setting(settingNewIniFullPath, value);
+      end
+
+    display_msg("Done.");
+  end
+end

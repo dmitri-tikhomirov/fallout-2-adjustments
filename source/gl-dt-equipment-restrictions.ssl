@@ -89,5 +89,5 @@ procedure getArmorPid(variable armor) begin
   armor = string_toupper(armor);
 
   if armorPids[armor] then return armorPids[armor];
-    else return atoi(armor);
+  else return atoi(armor);
 end

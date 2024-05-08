@@ -7,6 +7,16 @@ procedure start begin
 
     if levelCap == 0 orElse levelCap == -1 then return;
 
+    variable
+      sfallIniPath = get_ini_string(INI_PATH "|levelCap|sfallIniPath"),
+      sfallIniSection = get_ini_string(INI_PATH "|levelCap|sfallIniSection"),
+      sfallIniSetting = get_ini_string(INI_PATH "|levelCap|sfallIniSetting"),
+      sfallIniSettingFullPath = sfallIniPath + "|" + sfallIniSection + "|" +
+        sfallIniSetting;
+
+    // Do not edit the file if the setting is missing.
+    if get_ini_setting(sfallIniSettingFullPath) == -1 then return;
+
     variable xpTable = "", i;
 
     for (i = 2; i <= levelCap; i++) begin
@@ -16,7 +26,7 @@ procedure start begin
     end
 
     // Do not edit the file if the required level cap is already set.
-    if xpTable != get_ini_string(SFALL_INI_PATH "|Misc|XPTable") then
-      set_ini_setting(SFALL_INI_PATH "|Misc|XPTable", xpTable);
+    if xpTable != get_ini_string(sfallIniSettingFullPath) then
+      set_ini_setting(sfallIniSettingFullPath, xpTable);
   end
 end
