@@ -1,5 +1,5 @@
-#include "../source-headers/sfall/sfall.h"
-#include "../source-headers/fallout-2-adjustments.h"
+#include "headers/sfall/sfall.h"
+#include "headers/fallout-2-adjustments.h"
 
 variable
   armorRestrictions,
@@ -16,28 +16,24 @@ procedure start begin
       get_ini_string(INI_PATH "|equipmentRestrictions|weaponRestrictions");
 
     if armorRestrictions != "" orElse weaponRestrictions != "" then begin
-      // display_msg("This should not print if disabled.");
-
       armorRestrictions = string_split(armorRestrictions, ",");
       weaponRestrictions = string_split(weaponRestrictions, ",");
 
-      variable armor, index;
+      variable index, value;
 
       // Convert to PIDs.
-      foreach index: armor in armorRestrictions begin
-        // display_msg("armor: " + armor);
-        // display_msg("armor PID: " + getArmorPid(armor));
+      foreach index: value in armorRestrictions begin
+        // display_msg("armor: " + value);
+        // display_msg("armor PID: " + getArmorPid(value));
 
-        armorRestrictions[index] = getArmorPid(armor);
+        armorRestrictions[index] = getArmorPid(value);
       end
 
       fix_array(armorRestrictions);
 
-      variable weapon;
-
       // Convert to integers.
-      foreach index: weapon in weaponRestrictions
-        weaponRestrictions[index] = atoi(weapon);
+      foreach index: value in weaponRestrictions
+        weaponRestrictions[index] = atoi(value);
 
       fix_array(weaponRestrictions);
 
@@ -48,8 +44,8 @@ end
 
 procedure inventoryMoveHandler begin
   variable
-    targetSlot = get_sfall_arg,
-    movedItem = get_sfall_arg;
+    targetSlot = get_sfall_arg_at(0),
+    movedItem = get_sfall_arg_at(1);
 
   // Armor restrictions.
   if targetSlot == 3 andAlso

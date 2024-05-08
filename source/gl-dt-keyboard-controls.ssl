@@ -1,5 +1,5 @@
-#include "../source-headers/sfall/sfall.h"
-#include "../source-headers/fallout-2-adjustments.h"
+#include "headers/sfall/sfall.h"
+#include "headers/fallout-2-adjustments.h"
 
 variable
   keyMapping,
@@ -16,14 +16,15 @@ procedure start begin
         then begin
       keyMapping = get_ini_section(INI_PATH, "keyboardControlsMapping");
 
-      variable defaultKey, customKey;
+      variable index, value;
 
       // Convert key names to codes.
-      foreach (defaultKey: customKey in keyMapping) begin
-        defaultKey = getKeyCode(defaultKey);
-        keyMapping[defaultKey] = getKeyCode(customKey);
+      foreach index: value in keyMapping begin
+        index = getKeyCode(index);
 
-        // display_msg(defaultKey + "=" + keyMapping[defaultKey]);
+        keyMapping[index] = getKeyCode(value);
+
+        // display_msg(index + "=" + keyMapping[index]);
       end
 
       fix_array(keyMapping);
@@ -31,11 +32,9 @@ procedure start begin
       disabledKeys = string_split(
         get_ini_string(INI_PATH "|keyboardControls|disabledKeys"), ",");
 
-      variable disabledKey, index;
-
       // Convert key names to codes.
-      foreach (index: disabledKey in disabledKeys) begin
-        disabledKeys[index] = getKeyCode(disabledKey);
+      foreach index: value in disabledKeys begin
+        disabledKeys[index] = getKeyCode(value);
 
         // display_msg("disabledKeys[" + index + "]: " + disabledKeys[index]);
       end
@@ -52,8 +51,8 @@ end
 
 procedure keyPressHandler begin
   variable
-    pressedNotReleased = get_sfall_arg,
-    pressedKey = get_sfall_arg,
+    pressedNotReleased = get_sfall_arg_at(0),
+    pressedKey = get_sfall_arg_at(1),
     mappedDefaultKey = scan_array(keyMapping, pressedKey);
 
   // display_msg("pressedNotReleased: " + pressedNotReleased);

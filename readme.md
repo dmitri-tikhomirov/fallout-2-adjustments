@@ -2,8 +2,8 @@
 
 This is a collection of minimalistic mods that aim to keep the game largely vanilla and either:
 
-1. Fix certain game imbalances.
-2. Add some quality of life features.
+1. Fix game imbalances.
+2. Add quality of life features.
 3. Put optional restrictions on the player for a more challenging playthrough.
 
 The mod is fully modular. Each component can be disabled in the `.ini` file.
@@ -26,6 +26,8 @@ The mod is fully modular. Each component can be disabled in the `.ini` file.
   - Disabled by default. Puts an optional level cap on the player to make the game harder. You will still accumulate experience as normal after reaching the cap, but you won't get another level.
 - Equipment restrictions.
   - Disabled by default. Puts optional restrictions on armor and weapons the player can use. For example, you can restrict all kinds of power armor for a "no power armor" playthrough.
+- Party members' skills do not replace the player's skills.
+  - Prevents a party member's barter skill replacing the player's barter skill. The unfixed mechanic in vanilla game made the barter skill largely irrelevant, allowing you to rely on companions instead of investing in your own skill.
 
 More explanations in `mods\fallout-2-adjustments.ini`.
 
@@ -35,24 +37,25 @@ The mod requires [Sfall](https://github.com/sfall-team/sfall). Sfall is already 
 
 To install the mod:
 
+1. Download the mod: Above the list of files, click "<> Code" then "Download ZIP".
 1. Put the contents of the `mods` folder (the `fallout-2-adjustments` folder and `fallout-2-adjustments.ini`) to your `mods` folder.
-2. If you have `mods_order.txt` inside your `mods` folder, add `fallout-2-adjustments` (this exact line) to it.
-3. To configure settings, edit `fallout-2-adjustments.ini`.
+1. If you have `mods_order.txt` inside your `mods` folder, add `fallout-2-adjustments` (this exact line) to it.
+1. To configure settings, edit `fallout-2-adjustments.ini`.
 
 To uninstall, delete the files. To disable without deleting, remove the line from `mods_order.txt`.
 
 ## Compatibility
 
-If two mods change the same thing, disable the affected component in one or the other. You can always disable any component in my mod. For example, if you are using custom keyboard controls in [FO2tweaks](https://github.com/BGforgeNet/FO2tweaks/), disable them in my mod.
+If two mods change the same thing, disable the affecting component in one or the other. You can always disable any component in my mod. For example, if you are using custom keyboard controls in [FO2tweaks](https://github.com/BGforgeNet/FO2tweaks), disable them in my mod.
 
 ## Recommended mods
 
-For a close to vanilla but improved playthrough:
+For a close to vanilla but improved experience:
 
 - [Restoration Project, updated](https://github.com/BGforgeNet/Fallout2_Restoration_Project)
-- [Pixote's updated RP maps](https://www.nma-fallout.com/threads/pixotes-updated-rp-maps.222207/)
+- [Pixote's updated RP maps](https://www.nma-fallout.com/threads/pixotes-updated-rp-maps.222207)
   - Maps for Restoration Project that look closer to the original game.
-- [FO2tweaks](https://github.com/BGforgeNet/FO2tweaks/)
+- [FO2tweaks](https://github.com/BGforgeNet/FO2tweaks)
   - Contains a good damage formula with options to disable everything else, if needed.
 
 For a different gameplay experience:

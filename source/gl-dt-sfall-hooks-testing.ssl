@@ -1,5 +1,7 @@
-#include "../source-headers/sfall/sfall.h"
+#include "headers/sfall/sfall.h"
+#include "headers/fallout-2-adjustments.h"
 
+// In alphabetical order.
 procedure barterPriceHandler;
 procedure combatTurnHandler;
 procedure encounterHandler;
@@ -9,28 +11,61 @@ procedure keyPressHandler;
 procedure onDeathHandler;
 procedure rollCheckHandler;
 procedure sneakHandler;
-procedure stdProcedureHandler;
 procedure useSkillHandler;
 procedure useSkillOnHandler;
 procedure withinPerceptionHandler;
 
 procedure start begin
   if game_loaded then begin
-    display_msg("Procedure start is called.");
+    variable enableHooks = get_ini_section(INI_PATH, "developerTools");
 
-    register_hook_proc(HOOK_BARTERPRICE, barterPriceHandler);
-    register_hook_proc(HOOK_COMBATTURN, combatTurnHandler);
-    register_hook_proc(HOOK_ENCOUNTER, encounterHandler);
-    register_hook_proc(HOOK_GAMEMODECHANGE, gameModeChangeHandler);
-    register_hook_proc(HOOK_INVENTORYMOVE, inventoryMoveHandler);
-    register_hook_proc(HOOK_KEYPRESS, keyPressHandler);
-    register_hook_proc(HOOK_ONDEATH, onDeathHandler);
-    register_hook_proc(HOOK_ROLLCHECK, rollCheckHandler);
-    register_hook_proc(HOOK_SNEAK, sneakHandler);
-    register_hook_proc(HOOK_STDPROCEDURE, stdProcedureHandler);
-    register_hook_proc(HOOK_USESKILL, useSkillHandler);
-    register_hook_proc(HOOK_USESKILLON, useSkillOnHandler);
-    register_hook_proc(HOOK_WITHINPERCEPTION, withinPerceptionHandler);
+    if enableHooks["allHooks"] == "1" orElse
+        enableHooks["barterPrice"] == "1" then
+      register_hook_proc(HOOK_BARTERPRICE, barterPriceHandler);
+
+    if enableHooks["allHooks"] == "1" orElse
+        enableHooks["combatTurn"] == "1" then
+      register_hook_proc(HOOK_COMBATTURN, combatTurnHandler);
+
+    if enableHooks["allHooks"] == "1" orElse
+        enableHooks["encounter"] == "1" then
+      register_hook_proc(HOOK_ENCOUNTER, encounterHandler);
+
+    if enableHooks["allHooks"] == "1" orElse
+        enableHooks["gameModeChange"] == "1" then
+      register_hook_proc(HOOK_GAMEMODECHANGE, gameModeChangeHandler);
+
+    if enableHooks["allHooks"] == "1" orElse
+        enableHooks["inventoryMove"] == "1" then
+      register_hook_proc(HOOK_INVENTORYMOVE, inventoryMoveHandler);
+
+    if enableHooks["allHooks"] == "1" orElse
+        enableHooks["keyPress"] == "1" then
+      register_hook_proc(HOOK_KEYPRESS, keyPressHandler);
+
+    if enableHooks["allHooks"] == "1" orElse
+        enableHooks["onDeath"] == "1" then
+      register_hook_proc(HOOK_ONDEATH, onDeathHandler);
+
+    if enableHooks["allHooks"] == "1" orElse
+        enableHooks["rollCheck"] == "1" then
+      register_hook_proc(HOOK_ROLLCHECK, rollCheckHandler);
+
+    if enableHooks["allHooks"] == "1" orElse
+        enableHooks["sneak"] == "1" then
+      register_hook_proc(HOOK_SNEAK, sneakHandler);
+
+    if enableHooks["allHooks"] == "1" orElse
+        enableHooks["useSkill"] == "1" then
+      register_hook_proc(HOOK_USESKILL, useSkillHandler);
+
+    if enableHooks["allHooks"] == "1" orElse
+        enableHooks["useSkillOn"] == "1" then
+      register_hook_proc(HOOK_USESKILLON, useSkillOnHandler);
+
+    if enableHooks["allHooks"] == "1" orElse
+        enableHooks["barterPrice"] == "1" then
+      register_hook_proc(HOOK_WITHINPERCEPTION, withinPerceptionHandler);
   end
 end
 
@@ -50,7 +85,7 @@ end
 
 procedure combatTurnHandler begin
   variable
-    eventType = get_sfall_arg;
+    eventType = get_sfall_arg_at(0);
 
   display_msg(
     "HOOK_COMBATTURN. eventType: " + eventType +
@@ -72,8 +107,8 @@ end
 
 procedure gameModeChangeHandler begin
   variable
-    eventType = get_sfall_arg,
-    previousGameMode = get_sfall_arg,
+    eventType = get_sfall_arg_at(0),
+    previousGameMode = get_sfall_arg_at(1),
     currentGameMode = get_game_mode;
 
   display_msg(
@@ -86,9 +121,9 @@ end
 
 procedure inventoryMoveHandler begin
   variable
-    targetSlot = get_sfall_arg,
-    movedItem = get_sfall_arg,
-    replacedItem = get_sfall_arg;
+    targetSlot = get_sfall_arg_at(0),
+    movedItem = get_sfall_arg_at(1),
+    replacedItem = get_sfall_arg_at(2);
 
   display_msg(
     "HOOK_INVENTORYMOVE. targetSlot: " + targetSlot +
@@ -103,8 +138,8 @@ end
 
 procedure keyPressHandler begin
   variable
-    eventType = get_sfall_arg,
-    keyCode = get_sfall_arg;
+    eventType = get_sfall_arg_at(0),
+    keyCode = get_sfall_arg_at(1);
 
   display_msg(
     "HOOK_KEYPRESS. eventType: " + eventType +
@@ -115,7 +150,7 @@ end
 
 procedure onDeathHandler begin
   variable
-    critter = get_sfall_arg;
+    critter = get_sfall_arg_at(0);
 
   display_msg(
     "HOOK_ONDEATH. critter: " + critter +
@@ -125,8 +160,8 @@ end
 
 procedure rollCheckHandler begin
   variable
-    eventType = get_sfall_arg,
-    rollSuccess = is_success(get_sfall_arg);
+    eventType = get_sfall_arg_at(0),
+    rollSuccess = is_success(get_sfall_arg_at(1));
 
   display_msg(
     "HOOK_ROLLCHECK. eventType: " + eventType +
@@ -137,28 +172,12 @@ end
 
 procedure sneakHandler begin
   variable
-    sneakRollSuccess = is_success(get_sfall_arg),
-    sneakCheckDuration = get_sfall_arg;
+    sneakRollSuccess = is_success(get_sfall_arg_at(0)),
+    sneakCheckDuration = get_sfall_arg_at(1);
 
   display_msg(
     "HOOK_SNEAK. sneakRollSuccess: " + sneakRollSuccess +
     ", sneakCheckDuration: " + sneakCheckDuration +
-    "."
-  );
-end
-
-procedure stdProcedureHandler begin
-  variable
-    standardProcedure = get_sfall_arg_at(0),
-    sourceObject = get_sfall_arg_at(2),
-    targetObject = get_sfall_arg_at(4),
-    parameter = get_sfall_arg_at(5);
-
-  display_msg(
-    "HOOK_STDPROCEDURE. standardProcedure: " + standardProcedure +
-    ", sourceObject: " + sourceObject +
-    ", targetObject: " + targetObject +
-    ", parameter: " + parameter +
     "."
   );
 end
@@ -185,10 +204,10 @@ end
 
 procedure withinPerceptionHandler begin
   variable
-    watcher = get_sfall_arg,
-    target = get_sfall_arg,
-    withinPerception = get_sfall_arg,
-    hookType = get_sfall_arg;
+    watcher = get_sfall_arg_at(0),
+    target = get_sfall_arg_at(1),
+    withinPerception = get_sfall_arg_at(2),
+    hookType = get_sfall_arg_at(3);
 
   if combat_is_initialized then
     display_msg(

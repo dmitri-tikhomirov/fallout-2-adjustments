@@ -1,5 +1,5 @@
-#include "../source-headers/sfall/sfall.h"
-#include "../source-headers/fallout-2-adjustments.h"
+#include "headers/sfall/sfall.h"
+#include "headers/fallout-2-adjustments.h"
 
 variable priceCap;
 

@@ -1,0 +1,47 @@
+#include "headers/sfall/sfall.h"
+#include "headers/fallout-2-adjustments.h"
+
+variable partyMemberList;
+
+procedure gameModeChangeHandler;
+
+procedure start begin
+  if game_loaded then begin
+    if get_ini_setting(
+        INI_PATH "|partyMemberSkills|preventPartyMembersBarter") == 1 then
+      register_hook_proc(HOOK_GAMEMODECHANGE, gameModeChangeHandler);
+  end
+end
+
+procedure gameModeChangeHandler begin
+  variable
+    previousGameMode = get_sfall_arg_at(1),
+    currentGameMode = get_game_mode,
+    partyMember;
+
+  // Remove party members when entering barter.
+  if not(previousGameMode bwand BARTER) andAlso
+      currentGameMode bwand BARTER then begin
+    partyMemberList = party_member_list(0);
+
+    fix_array(partyMemberList);
+
+    foreach partyMember in partyMemberList
+      if partyMember != dude_obj then begin
+        party_remove(partyMember);
+
+        // display_msg("Removed " + obj_name(partyMember));
+      end
+  end
+
+  // Add party members back when exiting barter.
+  if previousGameMode bwand BARTER andAlso
+      not(currentGameMode bwand BARTER) then begin
+    foreach partyMember in partyMemberList
+      if partyMember != dude_obj then begin
+        party_add(partyMember);
+
+        // display_msg("Added " + obj_name(partyMember));
+      end
+  end
+end
