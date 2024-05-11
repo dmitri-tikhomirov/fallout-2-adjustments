@@ -1,0 +1,296 @@
+#include "headers/sfall/sfall.h"
+#include "headers/sfall/define_lite.h"
+#include "headers/fallout-2-adjustments.h"
+
+variable builtInFunctionsEnabled;
+
+procedure builtInFunctions;
+
+// Hook handlers in alphabetical order.
+procedure barterPriceHandler;
+procedure combatTurnHandler;
+procedure encounterHandler;
+procedure gameModeChangeHandler;
+procedure inventoryMoveHandler;
+procedure keyPressHandler;
+procedure onDeathHandler;
+procedure rollCheckHandler;
+procedure sneakHandler;
+procedure useSkillHandler;
+procedure useSkillOnHandler;
+procedure withinPerceptionHandler;
+
+procedure start begin
+  if game_loaded then begin
+    variable developerTools = get_ini_section(INI_PATH, "developerTools");
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["barterPrice"] == "1" then
+      register_hook_proc(HOOK_BARTERPRICE, barterPriceHandler);
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["combatTurn"] == "1" then
+      register_hook_proc(HOOK_COMBATTURN, combatTurnHandler);
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["encounter"] == "1" then
+      register_hook_proc(HOOK_ENCOUNTER, encounterHandler);
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["gameModeChange"] == "1" then
+      register_hook_proc(HOOK_GAMEMODECHANGE, gameModeChangeHandler);
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["inventoryMove"] == "1" then
+      register_hook_proc(HOOK_INVENTORYMOVE, inventoryMoveHandler);
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["keyPress"] == "1" then
+      register_hook_proc(HOOK_KEYPRESS, keyPressHandler);
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["onDeath"] == "1" then
+      register_hook_proc(HOOK_ONDEATH, onDeathHandler);
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["rollCheck"] == "1" then
+      register_hook_proc(HOOK_ROLLCHECK, rollCheckHandler);
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["sneak"] == "1" then
+      register_hook_proc(HOOK_SNEAK, sneakHandler);
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["useSkill"] == "1" then
+      register_hook_proc(HOOK_USESKILL, useSkillHandler);
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["useSkillOn"] == "1" then
+      register_hook_proc(HOOK_USESKILLON, useSkillOnHandler);
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["withinPerception"] == "1" then
+      register_hook_proc(HOOK_WITHINPERCEPTION, withinPerceptionHandler);
+
+    if developerTools["builtInFunctions"] == "1" then begin
+      builtInFunctionsEnabled = true;
+
+      call builtInFunctions;
+    end
+  end
+end
+
+procedure builtInFunctions begin
+  display_msg("builtInFunctions. To call again, enable keyPress and press ~.");
+
+  display_msg("dude_obj: " + dude_obj);
+  display_msg("get_critter_stat(dude_obj, STAT_gender): " +
+    get_critter_stat(dude_obj, STAT_gender));
+  display_msg("obj_name(dude_obj): " + obj_name(dude_obj));
+  display_msg("---");
+  display_msg("game_time: " + game_time);
+  display_msg("game_time_hour: " + game_time_hour);
+  display_msg("get_day: " + get_day);
+  display_msg("get_month: " + get_month);
+  display_msg("---");
+  display_msg("cur_map_index: " + cur_map_index);
+  display_msg("days_since_visited: " + days_since_visited);
+  display_msg("map_first_run: " + map_first_run);
+  display_msg("cur_town: " + cur_town);
+  display_msg("---");
+  display_msg("get_game_mode: " + get_game_mode);
+  display_msg("combat_is_initialized: " + combat_is_initialized);
+  display_msg("---");
+  display_msg("get_outline(dude_obj): " + get_outline(dude_obj));
+
+  if get_outline(dude_obj) == 0 then begin
+    display_msg("set_outline(dude_obj, OUTLINE_YELLOW)");
+    set_outline(dude_obj, OUTLINE_YELLOW);
+  end
+  else begin
+    display_msg("set_outline(dude_obj, OUTLINE_NONE)");
+    set_outline(dude_obj, OUTLINE_NONE);
+  end
+
+  display_msg("tile_refresh_display");
+  tile_refresh_display;
+
+  display_msg("---");
+  display_msg("get_pc_stat(1): " + get_pc_stat(1));
+  // SKILL_SNEAK (8)
+  display_msg("has_skill(dude_obj, SKILL_SNEAK): " +
+    has_skill(dude_obj, SKILL_SNEAK));
+  // Additional skill points you invested in the skill.
+  display_msg("get_critter_skill_points(dude_obj, SKILL_SNEAK): " +
+    get_critter_skill_points(dude_obj, SKILL_SNEAK));
+  display_msg("is_success(roll_vs_skill(dude_obj, SKILL_SNEAK, 0)): " +
+    is_success(roll_vs_skill(dude_obj, SKILL_SNEAK, 0)));
+  // Only works for sneak.
+  display_msg("using_skill(dude_obj, SKILL_SNEAK): " +
+    using_skill(dude_obj, SKILL_SNEAK));
+  display_msg("sneak_success: " + sneak_success);
+  display_msg("---");
+  display_msg("inven_count(dude_obj): " + inven_count(dude_obj));
+  display_msg("obj_name(critter_inven_obj(dude_obj, INVEN_TYPE_WORN)): " +
+    obj_name(critter_inven_obj(dude_obj, INVEN_TYPE_WORN)));
+  display_msg("obj_name(inven_ptr(dude_obj, 0)): " +
+    obj_name(inven_ptr(dude_obj, 0)));
+end
+
+procedure barterPriceHandler begin
+  variable
+    offeredPrice = get_sfall_arg_at(2),
+    offeredPriceUnmodified = get_sfall_arg_at(5),
+    tradingWithPartyMember = get_sfall_arg_at(9);
+
+  display_msg(
+    "HOOK_BARTERPRICE. offeredPrice: " + offeredPrice +
+    ", offeredPriceUnmodified: " + offeredPriceUnmodified +
+    ", tradingWithPartyMember: " + tradingWithPartyMember +
+    "."
+  );
+end
+
+procedure combatTurnHandler begin
+  variable
+    eventType = get_sfall_arg_at(0);
+
+  display_msg(
+    "HOOK_COMBATTURN. eventType: " + eventType +
+    "."
+  );
+end
+
+procedure encounterHandler begin
+  variable
+    eventType = get_sfall_arg_at(0),
+    isSpecialEncounter = get_sfall_arg_at(2);
+
+  display_msg(
+    "HOOK_ENCOUNTER. eventType: " + eventType +
+    ", isSpecialEncounter: " + isSpecialEncounter +
+    "."
+  );
+end
+
+procedure gameModeChangeHandler begin
+  variable
+    eventType = get_sfall_arg_at(0),
+    previousGameMode = get_sfall_arg_at(1);
+
+  display_msg(
+    "HOOK_GAMEMODECHANGE. eventType: " + eventType +
+    ", previousGameMode: " + previousGameMode +
+    ", currentGameMode: " + get_game_mode +
+    "."
+  );
+end
+
+procedure inventoryMoveHandler begin
+  variable
+    targetSlot = get_sfall_arg_at(0),
+    movedItem = get_sfall_arg_at(1),
+    replacedItem = get_sfall_arg_at(2);
+
+  display_msg(
+    "HOOK_INVENTORYMOVE. targetSlot: " + targetSlot +
+    ", movedItemName: " + obj_name(movedItem) +
+    ", movedItemPid: " + obj_pid(movedItem) +
+    // #define item_type_armor (0)
+    ", movedItemSubtype: " + obj_item_subtype(movedItem) +
+    ", replacedItemName: " + obj_name(replacedItem) +
+    "."
+  );
+end
+
+procedure keyPressHandler begin
+  variable
+    eventType = get_sfall_arg_at(0),
+    keyCode = get_sfall_arg_at(1);
+
+  display_msg(
+    "HOOK_KEYPRESS. eventType: " + eventType +
+    ", keyCode: " + keyCode +
+    "."
+  );
+
+  if builtInFunctionsEnabled andAlso keyCode == 41 andAlso eventType == 0 then
+    call builtInFunctions;
+end
+
+procedure onDeathHandler begin
+  variable
+    critter = get_sfall_arg_at(0);
+
+  display_msg(
+    "HOOK_ONDEATH. critterName: " + obj_name(critter) +
+    "."
+  );
+end
+
+procedure rollCheckHandler begin
+  variable
+    eventType = get_sfall_arg_at(0),
+    // ROLL_CRITICAL_FAILURE (0)
+    // ROLL_FAILURE (1)
+    // ROLL_SUCCESS (2)
+    // ROLL_CRITICAL_SUCCESS (3)
+    rollResult = get_sfall_arg_at(1),
+    rollSuccess = is_success(rollResult);
+
+  display_msg(
+    "HOOK_ROLLCHECK. eventType: " + eventType +
+    ", rollResult: " + rollResult +
+    ", rollSuccess: " + rollSuccess +
+    "."
+  );
+end
+
+procedure sneakHandler begin
+  variable
+    sneakCheckResult = get_sfall_arg_at(0),
+    sneakCheckDuration = get_sfall_arg_at(1);
+
+  display_msg(
+    "HOOK_SNEAK. sneakCheckResult: " + sneakCheckResult +
+    ", sneakCheckDuration: " + sneakCheckDuration +
+    "."
+  );
+end
+
+procedure useSkillHandler begin
+  variable
+    skill = get_sfall_arg_at(2);
+
+  display_msg(
+    "HOOK_USESKILL. skill: " + skill +
+    "."
+  );
+end
+
+procedure useSkillOnHandler begin
+  variable
+    skill = get_sfall_arg_at(2);
+
+  display_msg(
+    "HOOK_USESKILLON. skill: " + skill +
+    "."
+  );
+end
+
+procedure withinPerceptionHandler begin
+  variable
+    watcher = get_sfall_arg_at(0),
+    target = get_sfall_arg_at(1),
+    withinPerception = get_sfall_arg_at(2),
+    hookType = get_sfall_arg_at(3);
+
+  if combat_is_initialized then
+    display_msg(
+      "HOOK_WITHINPERCEPTION. watcherName: " + obj_name(watcher) +
+      ", targetName: " + obj_name(target) +
+      ", withinPerception: " + withinPerception +
+      ", hookType: " + hookType +
+      "."
+    );
+end

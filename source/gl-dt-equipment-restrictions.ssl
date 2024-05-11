@@ -1,4 +1,5 @@
 #include "headers/sfall/sfall.h"
+#include "headers/sfall/define_lite.h"
 #include "headers/fallout-2-adjustments.h"
 
 variable
@@ -49,20 +50,20 @@ procedure inventoryMoveHandler begin
 
   // Armor restrictions.
   if targetSlot == 3 andAlso
-      obj_item_subtype(movedItem) == 0 andAlso // "0" = armor.
+      obj_item_subtype(movedItem) == item_type_armor andAlso
       scan_array(armorRestrictions, obj_pid(movedItem)) != -1 then begin
     set_sfall_return(0);
 
-    display_msg("Cannot equip " + obj_name(movedItem) + ".");
+    display_msg("Cannot equip the " + obj_name(movedItem) + ".");
   end
 
   // Weapon restrictions.
   if (targetSlot == 1 or targetSlot == 2) andAlso
-      obj_item_subtype(movedItem) == 3 andAlso // "3" = weapon.
+      obj_item_subtype(movedItem) == item_type_weapon andAlso
       scan_array(weaponRestrictions, obj_pid(movedItem)) != -1 then begin
     set_sfall_return(0);
 
-    display_msg("Cannot equip " + obj_name(movedItem) + ".");
+    display_msg("Cannot equip the " + obj_name(movedItem) + ".");
   end
 end
 

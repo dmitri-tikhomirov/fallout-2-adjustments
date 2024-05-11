@@ -4,16 +4,18 @@
 procedure start begin
   if game_loaded then begin
     variable
-      compare = get_ini_setting(INI_PATH "|settingsTransfer|compare"),
-      transfer = get_ini_setting(INI_PATH "|settingsTransfer|transfer");
+      compareOnly =
+        get_ini_setting(INI_PATH "|settingsTransfer|compareOnly"),
+      compareAndTransfer =
+        get_ini_setting(INI_PATH "|settingsTransfer|compareAndTransfer");
 
-    if (compare == 0 orElse compare == -1) andAlso
-        (transfer == 0 orElse transfer == -1) then
+    if (compareOnly == 0 orElse compareOnly == -1) andAlso
+        (compareAndTransfer == 0 orElse compareAndTransfer == -1) then
       return;
     else begin
       display_msg("Checking settings...");
 
-      if transfer == 1 then display_msg("Transfer is on.");
+      if compareAndTransfer == 1 then display_msg("Transfer is on.");
       else display_msg("Transfer is off.");
     end
 
@@ -24,7 +26,8 @@ procedure start begin
         get_ini_string(INI_PATH "|settingsTransfer|excludedSettings"), ","),
       oldIniConfig = get_ini_config(oldIniPath),
       section, settings,
-      setting, value;
+      setting, value,
+      checkedCount = 0, missingCount = 0, transferredCount = 0;
 
     // foreach setting in excludedSettings
     //   display_msg(setting + " is excluded.");
@@ -36,13 +39,26 @@ procedure start begin
 
         if get_ini_setting(settingNewIniFullPath) == -1 andAlso
             get_ini_string(settingNewIniFullPath) != "-1" then begin
-          if compare == 1 then display_msg(setting + " is missing.");
+          missingCount++;
+
+          display_msg(setting + " is missing.");
         end
         else
-          if transfer == 1 andAlso
-              scan_array(excludedSettings, setting) == -1 then
+          if compareAndTransfer == 1 andAlso
+              scan_array(excludedSettings, setting) == -1 then begin
             set_ini_setting(settingNewIniFullPath, value);
+
+            transferredCount++;
+          end
+
+        checkedCount++;
       end
+
+    display_msg(checkedCount + " setting(s) checked.");
+    display_msg(missingCount + " setting(s) missing.");
+    display_msg(transferredCount + " setting(s) transferred.");
+    display_msg(
+      len_array(excludedSettings) + " setting(s) in exclusion list.");
 
     display_msg("Done.");
   end

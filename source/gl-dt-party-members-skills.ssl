@@ -1,14 +1,24 @@
 #include "headers/sfall/sfall.h"
+#include "headers/sfall/define_lite.h"
 #include "headers/fallout-2-adjustments.h"
 
-variable partyMemberList;
+variable
+  preventPartyMembersBarter,
+  preventPartyMembersOutdoorsman,
+  partyMemberList,
+  partyMemberAdditionalSkillPoints;
 
 procedure gameModeChangeHandler;
 
 procedure start begin
   if game_loaded then begin
-    if get_ini_setting(
-        INI_PATH "|partyMembersSkills|preventPartyMembersBarter") == 1 then
+    preventPartyMembersBarter = get_ini_setting(
+      INI_PATH "|partyMembersSkills|preventPartyMembersBarter");
+    preventPartyMembersOutdoorsman = get_ini_setting(
+      INI_PATH "|partyMembersSkills|preventPartyMembersOutdoorsman");
+
+    if preventPartyMembersBarter == 1 orElse
+        preventPartyMembersOutdoorsman == 1 then
       register_hook_proc(HOOK_GAMEMODECHANGE, gameModeChangeHandler);
   end
 end
@@ -19,29 +29,89 @@ procedure gameModeChangeHandler begin
     currentGameMode = get_game_mode,
     partyMember;
 
-  // Remove party members when entering barter.
-  if not(previousGameMode bwand BARTER) andAlso
-      currentGameMode bwand BARTER then begin
-    partyMemberList = party_member_list(0);
+  if preventPartyMembersBarter then begin
+    // Entering barter.
+    if not(previousGameMode bwand BARTER) andAlso
+        currentGameMode bwand BARTER then begin
+      partyMemberList = party_member_list(0);
 
-    fix_array(partyMemberList);
+      fix_array(partyMemberList);
 
-    foreach partyMember in partyMemberList
-      if partyMember != dude_obj then begin
-        party_remove(partyMember);
+      partyMemberAdditionalSkillPoints = {};
 
-        // display_msg("Removed " + obj_name(partyMember));
-      end
+      fix_array(partyMemberAdditionalSkillPoints);
+
+      foreach partyMember in partyMemberList
+        if partyMember != dude_obj then begin
+          // display_msg(obj_name(partyMember) + " barter skill: " +
+          //   has_skill(partyMember, SKILL_BARTER));
+          // display_msg(obj_name(partyMember) + " additional points: " +
+          //   get_critter_skill_points(partyMember, SKILL_BARTER));
+
+          partyMemberAdditionalSkillPoints[partyMember] =
+            get_critter_skill_points(partyMember, SKILL_BARTER);
+
+          set_critter_skill_points(partyMember, SKILL_BARTER, -200);
+
+          // display_msg(obj_name(partyMember) + " barter skill: " +
+          //   has_skill(partyMember, SKILL_BARTER));
+        end
+    end
+
+    // Exiting barter.
+    if previousGameMode bwand BARTER andAlso
+        not(currentGameMode bwand BARTER) then begin
+      foreach partyMember in partyMemberList
+        if partyMember != dude_obj then begin
+          set_critter_skill_points(partyMember, SKILL_BARTER,
+            partyMemberAdditionalSkillPoints[partyMember]);
+
+          // display_msg(obj_name(partyMember) + " barter skill: " +
+          //   has_skill(partyMember, SKILL_BARTER));
+        end
+    end
   end
 
-  // Add party members back when exiting barter.
-  if previousGameMode bwand BARTER andAlso
-      not(currentGameMode bwand BARTER) then begin
-    foreach partyMember in partyMemberList
-      if partyMember != dude_obj then begin
-        party_add(partyMember);
+  if preventPartyMembersOutdoorsman then begin
+    // Entering world map.
+    if not(previousGameMode bwand WORLDMAP) andAlso
+        currentGameMode bwand WORLDMAP then begin
+      partyMemberList = party_member_list(0);
 
-        // display_msg("Added " + obj_name(partyMember));
-      end
+      fix_array(partyMemberList);
+
+      partyMemberAdditionalSkillPoints = {};
+
+      fix_array(partyMemberAdditionalSkillPoints);
+
+      foreach partyMember in partyMemberList
+        if partyMember != dude_obj then begin
+          // display_msg(obj_name(partyMember) + " outdoorsman skill: " +
+          //   has_skill(partyMember, SKILL_OUTDOORSMAN));
+          // display_msg(obj_name(partyMember) + " additional points: " +
+          //   get_critter_skill_points(partyMember, SKILL_OUTDOORSMAN));
+
+          partyMemberAdditionalSkillPoints[partyMember] =
+            get_critter_skill_points(partyMember, SKILL_OUTDOORSMAN);
+
+          set_critter_skill_points(partyMember, SKILL_OUTDOORSMAN, -200);
+
+          // display_msg(obj_name(partyMember) + " outdoorsman skill: " +
+          //   has_skill(partyMember, SKILL_OUTDOORSMAN));
+        end
+    end
+
+    // Exiting world map.
+    if previousGameMode bwand WORLDMAP andAlso
+        not(currentGameMode bwand WORLDMAP) then begin
+      foreach partyMember in partyMemberList
+        if partyMember != dude_obj then begin
+          set_critter_skill_points(partyMember, SKILL_OUTDOORSMAN,
+            partyMemberAdditionalSkillPoints[partyMember]);
+
+          // display_msg(obj_name(partyMember) + " outdoorsman skill: " +
+          //   has_skill(partyMember, SKILL_OUTDOORSMAN));
+        end
+    end
   end
 end

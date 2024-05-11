@@ -5,7 +5,9 @@ variable
   keyMapping,
   disabledKeys,
   openCloseWithSameKey,
-  needToSetReleased;
+  previouslyPressedInSaveGame,
+  previouslyPressedInSkilldex,
+  previouslyPressedInInventory;
 
 procedure keyPressHandler;
 procedure getKeyCode(variable key);
@@ -51,35 +53,49 @@ end
 
 procedure keyPressHandler begin
   variable
-    pressedNotReleased = get_sfall_arg_at(0),
+    pressed = get_sfall_arg_at(0),
+    // released = not(pressed);
     pressedKey = get_sfall_arg_at(1),
-    mappedDefaultKey = scan_array(keyMapping, pressedKey);
+    mappedDefaultKey = scan_array(keyMapping, pressedKey),
+    currentGameMode = get_game_mode;
 
-  // display_msg("pressedNotReleased: " + pressedNotReleased);
+  // display_msg("pressed: " + pressed);
   // display_msg("pressedKey: " + pressedKey);
   // display_msg("mappedDefaultKey: " + mappedDefaultKey);
-  // display_msg("Inventory mode: " + (get_game_mode bwand INVENTORY));
-  // display_msg("Skilldex mode: " + (get_game_mode bwand SKILLDEX));
+  // display_msg("Inventory mode: " + (currentGameMode bwand INVENTORY));
+  // display_msg("Skilldex mode: " + (currentGameMode bwand SKILLDEX));
+
+  // Disable custom keys in save game window to write comments properly.
+  // Game mode changes before you release the key,
+  // but you need to set both to override correctly.
+  if currentGameMode bwand SAVEGAME andAlso pressed orElse
+      previouslyPressedInSaveGame then begin
+    if currentGameMode bwand SAVEGAME then previouslyPressedInSaveGame = true;
+    else previouslyPressedInSaveGame = false;
+
+    return;
+  end
 
   if openCloseWithSameKey == 1 then begin
     // Close Inventory window with the same key.
-    // Game mode changes before you release the key,
-    // but you need to set both to override correctly.
-    if (get_game_mode bwand INVENTORY andAlso pressedNotReleased orElse
-        needToSetReleased) andAlso
-        (mappedDefaultKey == 23 orElse pressedKey == 23) then begin
-      if pressedNotReleased then needToSetReleased = true;
-      else needToSetReleased = false;
+    if (currentGameMode bwand INVENTORY andAlso pressed orElse
+        previouslyPressedInInventory) andAlso
+        (mappedDefaultKey == getKeyCode("I") orElse
+        pressedKey == getKeyCode("I")) then begin
+      if currentGameMode bwand INVENTORY then
+        previouslyPressedInInventory = true;
+      else previouslyPressedInInventory = false;
 
       set_sfall_return(getKeyCode("Esc"));
     end
 
     // Close Skilldex window with the same key.
-    if (get_game_mode bwand SKILLDEX andAlso pressedNotReleased orElse
-        needToSetReleased) andAlso
-        (mappedDefaultKey == 31 orElse pressedKey == 31) then begin
-      if pressedNotReleased then needToSetReleased = true;
-      else needToSetReleased = false;
+    if (currentGameMode bwand SKILLDEX andAlso pressed orElse
+        previouslyPressedInSkilldex) andAlso
+        (mappedDefaultKey == getKeyCode("S") orElse
+        pressedKey == getKeyCode("S")) then begin
+      if currentGameMode bwand SKILLDEX then previouslyPressedInSkilldex = true;
+      else previouslyPressedInSkilldex = false;
 
       set_sfall_return(getKeyCode("Esc"));
     end

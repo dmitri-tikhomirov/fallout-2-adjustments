@@ -10,8 +10,6 @@ The mod is fully modular. Each component can be disabled in the `.ini` file. Dis
 
 ## Components
 
-- Price cap.
-  - Prevents buying for a lower price than what you sell for, avoiding one of the ways to break the economy.
 - Custom keyboard controls. Default settings:
   - Keys for opening Inventory and Skilldex now also close them.
   - `E`: Inventory.
@@ -22,14 +20,18 @@ The mod is fully modular. Each component can be disabled in the `.ini` file. Dis
     - `F5`: Quick save.
     - `F8`: Quick load.
     - `F9`: Load game.
+- Price cap.
+  - Prevents buying for a lower price than what you sell for, avoiding one of the ways to break the economy.
 - Level cap.
   - Disabled by default. Puts an optional level cap on the player to make the game harder. You will still accumulate experience as normal after reaching the cap, but you won't get another level.
 - Equipment restrictions.
   - Disabled by default. Puts optional restrictions on armor and weapons the player can use. For example, you can restrict all kinds of power armor for a "no power armor" playthrough.
 - Party members' skills do not replace the player's skills.
-  - Prevents a party member's barter skill replacing the player's barter skill. The unfixed mechanic in vanilla game made the barter skill largely irrelevant, allowing you to rely on companions instead of investing in your own skill.
+  - The unfixed mechanic in vanilla game made certain skills largely irrelevant, allowing you to rely on companions instead of investing in your own skills.
+  - Prevents a party member's barter skill replacing the player's barter skill.
+  - Prevents a party member's outdoorsman skill replacing the player's outdoorsman skill.
 - Settings transfer.
-  - Disabled by default. A tool to help you automatically transfer settings between old and new `.ini` files. Useful when updating mods if you have a lot of custom settings. Do not enable if you are not sure what exactly this component does.
+  - Disabled by default. A tool to help you automatically transfer settings between old and new `.ini` files. Useful when updating mods if you have a lot of custom settings.
 
 More explanations in `mods\fallout-2-adjustments.ini`.
 
@@ -54,13 +56,16 @@ If two mods change the same thing, disable the affecting component in one or the
 
 For a close to vanilla but improved experience:
 
-- [Restoration Project, updated](https://github.com/BGforgeNet/Fallout2_Restoration_Project)
-- [Pixote's updated RP maps](https://www.nma-fallout.com/threads/pixotes-updated-rp-maps.222207)
+- [Restoration Project, updated](https://github.com/BGforgeNet/Fallout2_Restoration_Project). Recommended components:
+  - NPC Armor Mod.
+  - Talking Head for Cassidy.
+  - Cassidy Voice by Joey Bracken.
+  - Hero Appearance.
+  - Alternative Explosions.
+    - Explosion animations from Fallout Tactics.
+  - Extended Flamer Attack Animations.
+    - It fixes flamer attacks when increasing game speed in Sfall's settings.
+- [Pixote's updated RP maps](https://www.nma-fallout.com/threads/pixotes-updated-rp-maps.222207). Also available on [Nexus Mods](https://www.nexusmods.com/fallout2/mods/73).
   - Maps for Restoration Project that look closer to the original game.
-- [FO2tweaks](https://github.com/BGforgeNet/FO2tweaks)
-  - Contains a good damage formula with options to disable everything else, if needed.
-
-For a different gameplay experience:
-
-- [EcCo Gameplay Overhaul](https://github.com/phobos2077/fo2_ecco)
-- [Fallout2MechanicsMiniRework](https://github.com/dekrus/Fallout2MechanicsMiniRework)
+- [FO2tweaks](https://github.com/BGforgeNet/FO2tweaks).
+  - Contains a good damage formula and some quality of life features. There are options to disable everything you don't need. Be careful when disabling changes to knockback, you need to put "-1" instead of "0".

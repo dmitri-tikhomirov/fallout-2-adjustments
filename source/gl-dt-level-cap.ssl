@@ -15,7 +15,12 @@ procedure start begin
         sfallIniSetting;
 
     // Do not edit the file if the setting is missing.
-    if get_ini_setting(sfallIniSettingFullPath) == -1 then return;
+    if get_ini_setting(sfallIniSettingFullPath) == -1 andAlso
+        get_ini_string(sfallIniSettingFullPath) != "-1" then begin
+      display_msg("Level cap mod: No setting was found. Nothing changed.");
+
+      return;
+    end
 
     variable xpTable = "", i;
 

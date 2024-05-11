@@ -1,0 +1,53 @@
+#include "headers/sfall/sfall.h"
+#include "headers/fallout-2-adjustments.h"
+
+procedure gameModeChangeHandler;
+procedure keyPressHandler;
+procedure sneakHandler;
+
+procedure start begin
+  if game_loaded then begin
+    register_hook_proc(HOOK_GAMEMODECHANGE, gameModeChangeHandler);
+    register_hook_proc(HOOK_KEYPRESS, keyPressHandler);
+    register_hook_proc(HOOK_SNEAK, sneakHandler);
+
+    display_msg("Registered hooks.");
+  end
+end
+
+procedure gameModeChangeHandler begin
+  variable
+    eventType = get_sfall_arg_at(0),
+    previousGameMode = get_sfall_arg_at(1);
+
+  display_msg(
+    "HOOK_GAMEMODECHANGE. eventType: " + eventType +
+    ", previousGameMode: " + previousGameMode +
+    ", currentGameMode: " + get_game_mode +
+    "."
+  );
+end
+
+procedure keyPressHandler begin
+  variable
+    eventType = get_sfall_arg_at(0),
+    keyCode = get_sfall_arg_at(1);
+
+  display_msg(
+    "HOOK_KEYPRESS. eventType: " + eventType +
+    ", keyCode: " + keyCode +
+    "."
+  );
+end
+
+procedure sneakHandler begin
+  variable
+    sneakCheckResult = get_sfall_arg_at(0),
+    sneakCheckDuration = get_sfall_arg_at(1);
+
+  display_msg(
+    "HOOK_SNEAK. sneakCheckResult: " + sneakCheckResult +
+    ", sneakCheckDuration: " + sneakCheckDuration +
+    "."
+  );
+end
