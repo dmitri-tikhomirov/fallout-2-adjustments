@@ -7,7 +7,8 @@ variable
   openCloseWithSameKey,
   previouslyPressedInSaveGame,
   previouslyPressedInSkilldex,
-  previouslyPressedInInventory;
+  previouslyPressedInInventory,
+  debuggingEnabled;
 
 procedure keyPressHandler;
 procedure getKeyCode(variable key);
@@ -16,6 +17,9 @@ procedure start begin
   if game_loaded then begin
     if get_ini_setting(INI_PATH "|keyboardControls|customControlsEnabled") == 1
         then begin
+      debuggingEnabled = get_ini_setting(
+        INI_PATH "|debugging|keyboardControls");
+
       keyMapping = get_ini_section(INI_PATH, "keyboardControlsMapping");
 
       variable index, value;
@@ -26,7 +30,8 @@ procedure start begin
 
         keyMapping[index] = getKeyCode(value);
 
-        // display_msg(index + "=" + keyMapping[index]);
+        if debuggingEnabled == 1 then
+          display_msg(index + "=" + keyMapping[index]);
       end
 
       fix_array(keyMapping);
@@ -38,7 +43,8 @@ procedure start begin
       foreach index: value in disabledKeys begin
         disabledKeys[index] = getKeyCode(value);
 
-        // display_msg("disabledKeys[" + index + "]: " + disabledKeys[index]);
+        if debuggingEnabled == 1 then
+          display_msg("disabledKeys[" + index + "]: " + disabledKeys[index]);
       end
 
       fix_array(disabledKeys);
@@ -59,13 +65,15 @@ procedure keyPressHandler begin
     mappedDefaultKey = scan_array(keyMapping, pressedKey),
     currentGameMode = get_game_mode;
 
-  // display_msg("pressed: " + pressed);
-  // display_msg("pressedKey: " + pressedKey);
-  // display_msg("mappedDefaultKey: " + mappedDefaultKey);
-  // display_msg("Inventory mode: " + (currentGameMode bwand INVENTORY));
-  // display_msg("Skilldex mode: " + (currentGameMode bwand SKILLDEX));
+  if debuggingEnabled == 1 then begin
+    display_msg("pressed: " + pressed);
+    display_msg("pressedKey: " + pressedKey);
+    display_msg("mappedDefaultKey: " + mappedDefaultKey);
+    display_msg("Inventory mode: " + (currentGameMode bwand INVENTORY));
+    display_msg("Skilldex mode: " + (currentGameMode bwand SKILLDEX));
+  end
 
-  // Disable custom keys in save game window to write comments properly.
+  // Disable custom keys in save game window to write comments there properly.
   // Game mode changes before you release the key,
   // but you need to set both to override correctly.
   if currentGameMode bwand SAVEGAME andAlso pressed orElse

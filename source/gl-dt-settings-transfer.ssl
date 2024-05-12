@@ -1,6 +1,8 @@
 #include "headers/sfall/sfall.h"
 #include "headers/fallout-2-adjustments.h"
 
+variable debuggingEnabled;
+
 procedure start begin
   if game_loaded then begin
     variable
@@ -29,8 +31,11 @@ procedure start begin
       setting, value,
       checkedCount = 0, missingCount = 0, transferredCount = 0;
 
-    // foreach setting in excludedSettings
-    //   display_msg(setting + " is excluded.");
+    debuggingEnabled = get_ini_setting(INI_PATH "|debugging|settingsTransfer");
+
+    if debuggingEnabled == 1 then
+      foreach setting in excludedSettings
+        display_msg(setting + " is excluded.");
 
     foreach section: settings in oldIniConfig
       foreach setting: value in settings begin

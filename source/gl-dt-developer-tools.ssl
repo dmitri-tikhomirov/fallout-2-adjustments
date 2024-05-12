@@ -13,6 +13,7 @@ procedure encounterHandler;
 procedure gameModeChangeHandler;
 procedure inventoryMoveHandler;
 procedure keyPressHandler;
+procedure moveCostHandler;
 procedure onDeathHandler;
 procedure rollCheckHandler;
 procedure sneakHandler;
@@ -47,6 +48,10 @@ procedure start begin
     if developerTools["allHooks"] == "1" orElse
         developerTools["keyPress"] == "1" then
       register_hook_proc(HOOK_KEYPRESS, keyPressHandler);
+
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["moveCost"] == "1" then
+      register_hook_proc(HOOK_MOVECOST, moveCostHandler);
 
     if developerTools["allHooks"] == "1" orElse
         developerTools["onDeath"] == "1" then
@@ -117,6 +122,7 @@ procedure builtInFunctions begin
 
   display_msg("---");
   display_msg("get_pc_stat(1): " + get_pc_stat(1));
+  display_msg("drug_influence(dude_obj): " + drug_influence(dude_obj));
   // SKILL_SNEAK (8)
   display_msg("has_skill(dude_obj, SKILL_SNEAK): " +
     has_skill(dude_obj, SKILL_SNEAK));
@@ -194,10 +200,12 @@ procedure inventoryMoveHandler begin
 
   display_msg(
     "HOOK_INVENTORYMOVE. targetSlot: " + targetSlot +
+    ", movedItem: " + movedItem +
     ", movedItemName: " + obj_name(movedItem) +
     ", movedItemPid: " + obj_pid(movedItem) +
     // #define item_type_armor (0)
     ", movedItemSubtype: " + obj_item_subtype(movedItem) +
+    ", replacedItem: " + replacedItem +
     ", replacedItemName: " + obj_name(replacedItem) +
     "."
   );
@@ -216,6 +224,20 @@ procedure keyPressHandler begin
 
   if builtInFunctionsEnabled andAlso keyCode == 41 andAlso eventType == 0 then
     call builtInFunctions;
+end
+
+procedure moveCostHandler begin
+  variable
+    critter = get_sfall_arg_at(0),
+    hexesNumber = get_sfall_arg_at(1),
+    apCost = get_sfall_arg_at(2);
+
+  display_msg(
+    "HOOK_MOVECOST. critterName: " + obj_name(critter) +
+    ", hexesNumber: " + hexesNumber +
+    ", apCost: " + apCost +
+    "."
+  );
 end
 
 procedure onDeathHandler begin
@@ -248,11 +270,11 @@ end
 
 procedure sneakHandler begin
   variable
-    sneakCheckResult = get_sfall_arg_at(0),
+    sneakSuccess = get_sfall_arg_at(0),
     sneakCheckDuration = get_sfall_arg_at(1);
 
   display_msg(
-    "HOOK_SNEAK. sneakCheckResult: " + sneakCheckResult +
+    "HOOK_SNEAK. sneakSuccess: " + sneakSuccess +
     ", sneakCheckDuration: " + sneakCheckDuration +
     "."
   );

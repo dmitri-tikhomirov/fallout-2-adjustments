@@ -4,7 +4,8 @@
 
 variable
   armorRestrictions,
-  weaponRestrictions;
+  weaponRestrictions,
+  debuggingEnabled;
 
 procedure inventoryMoveHandler;
 procedure getArmorPid(variable armor);
@@ -17,6 +18,9 @@ procedure start begin
       get_ini_string(INI_PATH "|equipmentRestrictions|weaponRestrictions");
 
     if armorRestrictions != "" orElse weaponRestrictions != "" then begin
+      debuggingEnabled = get_ini_setting(
+        INI_PATH "|debugging|equipmentRestrictions");
+
       armorRestrictions = string_split(armorRestrictions, ",");
       weaponRestrictions = string_split(weaponRestrictions, ",");
 
@@ -24,8 +28,10 @@ procedure start begin
 
       // Convert to PIDs.
       foreach index: value in armorRestrictions begin
-        // display_msg("armor: " + value);
-        // display_msg("armor PID: " + getArmorPid(value));
+        if debuggingEnabled == 1 then begin
+          display_msg("armor: " + value);
+          display_msg("armor PID: " + getArmorPid(value));
+        end
 
         armorRestrictions[index] = getArmorPid(value);
       end

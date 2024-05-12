@@ -11,7 +11,7 @@ The mod is fully modular. Each component can be disabled in the `.ini` file. Dis
 ## Components
 
 - Custom keyboard controls. Default settings:
-  - Keys for opening Inventory and Skilldex now also close them.
+  - Keys for opening inventory and skilldex now also close them.
   - `E`: Inventory.
   - `Q`: Pip-Boy. "Q" for "Quests".
   - `V`: Center camera on the player. "V" for "View".
@@ -27,9 +27,11 @@ The mod is fully modular. Each component can be disabled in the `.ini` file. Dis
 - Equipment restrictions.
   - Disabled by default. Puts optional restrictions on armor and weapons the player can use. For example, you can restrict all kinds of power armor for a "no power armor" playthrough.
 - Party members' skills do not replace the player's skills.
-  - The unfixed mechanic in vanilla game made certain skills largely irrelevant, allowing you to rely on companions instead of investing in your own skills.
+  - The unfixed mechanic in the vanilla game made certain skills largely irrelevant, allowing you to rely on companions instead of investing in your own skills.
   - Prevents a party member's barter skill replacing the player's barter skill.
   - Prevents a party member's outdoorsman skill replacing the player's outdoorsman skill.
+- Armor penalty.
+  - Heavy armor penalizes sneak skill, by a percentage, depending on armor weight. All kinds of leather armor are light enough for a 0% penalty. The heaviest armor in the game = 100% penalty (meaning sneak becomes 0). You won't be able to equip armor while in sneak mode.
 - Settings transfer.
   - Disabled by default. A tool to help you automatically transfer settings between old and new `.ini` files. Useful when updating mods if you have a lot of custom settings.
 

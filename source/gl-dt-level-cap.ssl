@@ -1,6 +1,8 @@
 #include "headers/sfall/sfall.h"
 #include "headers/fallout-2-adjustments.h"
 
+variable debuggingEnabled;
+
 procedure start begin
   if game_loaded then begin
     variable levelCap = get_ini_setting(INI_PATH "|levelCap|levelCap");
@@ -13,6 +15,8 @@ procedure start begin
       sfallIniSetting = get_ini_string(INI_PATH "|levelCap|sfallIniSetting"),
       sfallIniSettingFullPath = sfallIniPath + "|" + sfallIniSection + "|" +
         sfallIniSetting;
+
+    debuggingEnabled = get_ini_setting(INI_PATH "|debugging|levelCap");
 
     // Do not edit the file if the setting is missing.
     if get_ini_setting(sfallIniSettingFullPath) == -1 andAlso
@@ -31,7 +35,14 @@ procedure start begin
     end
 
     // Do not edit the file if the required level cap is already set.
-    if xpTable != get_ini_string(sfallIniSettingFullPath) then
+    if xpTable != get_ini_string(sfallIniSettingFullPath) then begin
       set_ini_setting(sfallIniSettingFullPath, xpTable);
+
+      if debuggingEnabled == 1 then
+        display_msg("Edited the setting in file.");
+    end
+    else
+      if debuggingEnabled == 1 then
+        display_msg("The required level cap is already set.");
   end
 end

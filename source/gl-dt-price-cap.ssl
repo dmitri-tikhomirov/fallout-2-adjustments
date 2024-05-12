@@ -1,7 +1,9 @@
 #include "headers/sfall/sfall.h"
 #include "headers/fallout-2-adjustments.h"
 
-variable priceCap;
+variable
+  priceCap,
+  debuggingEnabled;
 
 procedure barterPriceHandler;
 
@@ -9,10 +11,10 @@ procedure start begin
   if game_loaded then begin
     priceCap = atof(get_ini_string(INI_PATH "|priceCap|priceCap"));
 
-    // display_msg("priceCap: " + priceCap + ".");
-
     // If disabled in settings, do not do anything else.
     if priceCap == 0 orElse priceCap == -1 then return;
+
+    debuggingEnabled = get_ini_setting(INI_PATH "|debugging|priceCap");
 
     register_hook_proc(HOOK_BARTERPRICE, barterPriceHandler);
   end
@@ -25,13 +27,13 @@ procedure barterPriceHandler begin
     tradingWithPartyMember = get_sfall_arg_at(9),
     minPrice = floor(offeredPriceUnmodified * priceCap);
 
-  // display_msg(
-  //   "offeredPrice: " + offeredPrice +
-  //   ", offeredPriceUnmodified: " + offeredPriceUnmodified +
-  //   ", tradingWithPartyMember: " + tradingWithPartyMember +
-  //   ", minPrice: " + minPrice +
-  //   "."
-  // );
+  if debuggingEnabled == 1 then begin
+    display_msg("offeredPrice: " + offeredPrice);
+    display_msg("offeredPriceUnmodified: " + offeredPriceUnmodified);
+    display_msg("tradingWithPartyMember: " + tradingWithPartyMember);
+    display_msg("priceCap: " + priceCap);
+    display_msg("minPrice: " + minPrice);
+  end
 
   if tradingWithPartyMember then return;
 
