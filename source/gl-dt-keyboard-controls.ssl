@@ -70,6 +70,8 @@ procedure keyPressHandler begin
     display_msg("pressedKey: " + pressedKey);
     display_msg("mappedDefaultKey: " + mappedDefaultKey);
     display_msg("Inventory mode: " + (currentGameMode bwand INVENTORY));
+    display_msg("INTFACEUSE mode: " + (currentGameMode bwand INTFACEUSE));
+    display_msg("INTFACELOOT mode: " + (currentGameMode bwand INTFACELOOT));
     display_msg("Skilldex mode: " + (currentGameMode bwand SKILLDEX));
   end
 
@@ -86,11 +88,15 @@ procedure keyPressHandler begin
 
   if openCloseWithSameKey == 1 then begin
     // Close Inventory window with the same key.
-    if (currentGameMode bwand INVENTORY andAlso pressed orElse
+    if ((currentGameMode bwand INVENTORY orElse
+        currentGameMode bwand INTFACEUSE orElse
+        currentGameMode bwand INTFACELOOT) andAlso pressed orElse
         previouslyPressedInInventory) andAlso
         (mappedDefaultKey == getKeyCode("I") orElse
         pressedKey == getKeyCode("I")) then begin
-      if currentGameMode bwand INVENTORY then
+      if currentGameMode bwand INVENTORY orElse
+          currentGameMode bwand INTFACEUSE orElse
+          currentGameMode bwand INTFACELOOT then
         previouslyPressedInInventory = true;
       else previouslyPressedInInventory = false;
 

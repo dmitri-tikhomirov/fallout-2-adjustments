@@ -36,7 +36,6 @@ procedure inventoryMoveHandler begin
   variable
     targetSlot = get_sfall_arg_at(0),
     movedItem = get_sfall_arg_at(1);
-    // replacedItem = get_sfall_arg_at(2);
 
   if obj_item_subtype(movedItem) == item_type_armor then begin
     // Equipping armor.
@@ -57,8 +56,11 @@ procedure inventoryMoveHandler begin
       end
 
     // Removing armor.
-    if movedItem == equippedArmor then
+    if movedItem == equippedArmor then begin
       call removeSneakPenalty;
+
+      equippedArmor = 0;
+    end
   end
 end
 
@@ -110,12 +112,27 @@ procedure gameModeChangeHandler begin
       display_msg("Sneak penalty from armor: " +
         currentSneakPenalty + " point(s).");
 
+    // Remove the penalty to prevent abusing armor debuff.
     call removeSneakPenalty;
+
+    return;
   end
 
   // Closing the character screen.
-  // Recalculate the penalty, in case the player have put points in sneak.
   if previousGameMode bwand CHARSCREEN andAlso
-      not(currentGameMode bwand CHARSCREEN) then
+      not(currentGameMode bwand CHARSCREEN) then begin
+    // Restore and recalculate the penalty,
+    // in case the player have put points in sneak.
     call applySneakPenalty(equippedArmor);
+
+    return;
+  end
+
+  // Recalculate the penalty whenever the player returns to normal game mode.
+  // In case the player uses drugs, etc.
+  if currentGameMode == 0 andAlso previousGameMode !=0 then begin
+    call removeSneakPenalty;
+
+    call applySneakPenalty(equippedArmor);
+  end
 end

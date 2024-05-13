@@ -11,11 +11,11 @@ The mod is fully modular. Each component can be disabled in the `.ini` file. Dis
 ## Components
 
 - Custom keyboard controls. Default settings:
-  - Keys for opening inventory and skilldex now also close them.
+  - The keys for opening inventory and skilldex now also close them. The key for inventory also closes the "looting containers" window and the "use inventory item on" (the backpack icon) window.
   - `E`: Inventory.
   - `Q`: Pip-Boy. "Q" for "Quests".
   - `V`: Center camera on the player. "V" for "View".
-  - Save and loading keys are changed to be further apart and harder to mix up:
+  - Save and loading keys are changed to be further apart and harder to mix up accidentally:
     - `F4`: Save game (unchanged).
     - `F5`: Quick save.
     - `F8`: Quick load.
@@ -31,7 +31,8 @@ The mod is fully modular. Each component can be disabled in the `.ini` file. Dis
   - Prevents a party member's barter skill replacing the player's barter skill.
   - Prevents a party member's outdoorsman skill replacing the player's outdoorsman skill.
 - Armor penalty.
-  - Heavy armor penalizes sneak skill, by a percentage, depending on armor weight. All kinds of leather armor are light enough for a 0% penalty. The heaviest armor in the game = 100% penalty (meaning sneak becomes 0). You won't be able to equip armor while in sneak mode.
+  - Heavy armor penalizes sneak skill, by a percentage, depending on armor weight. All kinds of leather armor are light enough for a 0% penalty. The heaviest armor in the game = 100% penalty (meaning sneak becomes 0). You won't be able to put on armor while in sneak mode.
+  - To see the current penalty, open the character screen while in sneak mode. Once you do this, a text message will be added.
 - Settings transfer.
   - Disabled by default. A tool to help you automatically transfer settings between old and new `.ini` files. Useful when updating mods if you have a lot of custom settings.
 

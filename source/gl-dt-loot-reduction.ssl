@@ -1,0 +1,86 @@
+#include "headers/sfall/sfall.h"
+#include "headers/sfall/define_lite.h"
+#include "headers/fallout-2-adjustments.h"
+
+variable
+  weaponsReductionNumber,
+  ammoReductionNumber,
+  drugsReductionNumber,
+  miscReductionNumber,
+  encountersOnly,
+  excludedItems,
+  debuggingEnabled;
+
+procedure getInventoryContents(variable critter);
+procedure onDeathHandler;
+
+procedure start begin
+  if game_loaded then begin
+    weaponsReductionNumber = get_ini_setting(
+      INI_PATH "|lootReduction|weaponsReductionNumber");
+    ammoReductionNumber = get_ini_setting(
+      INI_PATH "|lootReduction|ammoReductionNumber");
+    drugsReductionNumber = get_ini_setting(
+      INI_PATH "|lootReduction|drugsReductionNumber");
+    miscReductionNumber = get_ini_setting(
+      INI_PATH "|lootReduction|miscReductionNumber");
+
+    if weaponsReductionNumber > 1 orElse ammoReductionNumber > 1 orElse
+        drugsReductionNumber > 1 orElse miscReductionNumber > 1 then begin
+      encountersOnly = get_ini_setting(
+        INI_PATH "|lootReduction|encountersOnly");
+      excludedItems = string_split(
+        get_ini_string(INI_PATH "|lootReduction|excludedItems"), ",");
+      debuggingEnabled = get_ini_setting(INI_PATH "|debugging|lootReduction");
+
+      variable index, value;
+
+      // Convert to integers.
+      foreach index: value in excludedItems
+        excludedItems[index] = atoi(value);
+
+      fix_array(excludedItems);
+
+      register_hook_proc(HOOK_ONDEATH, onDeathHandler);
+    end
+  end
+end
+
+procedure onDeathHandler begin
+  variable theDeceased = get_sfall_arg_at(0);
+
+  if party_member_obj(obj_pid(theDeceased)) orElse theDeceased == dude_obj then
+    return;
+
+  variable
+    inventoryContents = getInventoryContents(theDeceased),
+    index, value;
+
+  foreach (index: value in inventoryContents) begin
+    if value == item_type_weapon andAlso weaponsReductionNumber > 1 andAlso
+        scan_array(excludedItems, obj_pid(index)) == -1 then begin
+      // Keep track only of weapons?
+    end
+  end
+
+  if debuggingEnabled == 1 then begin
+    display_msg("theDeceased, name: " + obj_name(theDeceased));
+    display_msg("inventoryContents:");
+
+    foreach (index: value in inventoryContents)
+      display_msg(obj_name(index) + ": " + value);
+  end
+end
+
+procedure getInventoryContents(variable critter) begin
+  variable inventoryContents = {}, slotNumber = 0;
+
+  while inven_ptr(critter, slotNumber) do begin
+    inventoryContents[inven_ptr(critter, slotNumber)] =
+      obj_item_subtype(inven_ptr(critter, slotNumber));
+
+    slotNumber++;
+  end
+
+  return inventoryContents;
+end
