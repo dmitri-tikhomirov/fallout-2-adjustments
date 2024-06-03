@@ -1,13 +1,16 @@
 #include "headers/sfall/sfall.h"
 #include "headers/sfall/define_lite.h"
+
 #include "headers/fallout-2-adjustments.h"
 
 variable
   preventPartyMembersBarter,
   preventPartyMembersOutdoorsman,
-  partyMemberList,
-  partyMemberAdditionalSkillPoints,
   debuggingEnabled;
+
+variable
+  partyMemberList,
+  partyMemberAdditionalSkillPoints;
 
 procedure gameModeChangeHandler;
 
@@ -39,15 +42,15 @@ procedure gameModeChangeHandler begin
     if not(previousGameMode bwand BARTER) andAlso
         currentGameMode bwand BARTER then begin
       partyMemberList = party_member_list(0);
-
       fix_array(partyMemberList);
 
       partyMemberAdditionalSkillPoints = {};
-
       fix_array(partyMemberAdditionalSkillPoints);
 
-      foreach partyMember in partyMemberList
+      foreach partyMember in partyMemberList begin
         if partyMember != dude_obj then begin
+          partyMemberAdditionalSkillPoints[partyMember] =
+            get_critter_skill_points(partyMember, SKILL_BARTER);
           if debuggingEnabled == 1 then begin
             display_msg(obj_name(partyMember) + ", barter skill: " +
               has_skill(partyMember, SKILL_BARTER));
@@ -55,29 +58,29 @@ procedure gameModeChangeHandler begin
               get_critter_skill_points(partyMember, SKILL_BARTER));
           end
 
-          partyMemberAdditionalSkillPoints[partyMember] =
-            get_critter_skill_points(partyMember, SKILL_BARTER);
-
           set_critter_skill_points(partyMember, SKILL_BARTER, -200);
-
-          if debuggingEnabled == 1 then
+          if debuggingEnabled == 1 then begin
             display_msg(obj_name(partyMember) + ", barter skill: " +
               has_skill(partyMember, SKILL_BARTER));
+          end
         end
+      end
     end
 
     // Exiting barter.
     if previousGameMode bwand BARTER andAlso
-        not(currentGameMode bwand BARTER) then
-      foreach partyMember in partyMemberList
+        not(currentGameMode bwand BARTER) then begin
+      foreach partyMember in partyMemberList begin
         if partyMember != dude_obj then begin
           set_critter_skill_points(partyMember, SKILL_BARTER,
             partyMemberAdditionalSkillPoints[partyMember]);
-
-          if debuggingEnabled == 1 then
+          if debuggingEnabled == 1 then begin
             display_msg(obj_name(partyMember) + ", barter skill: " +
               has_skill(partyMember, SKILL_BARTER));
+          end
         end
+      end
+    end
   end
 
   if preventPartyMembersOutdoorsman then begin
@@ -85,15 +88,15 @@ procedure gameModeChangeHandler begin
     if not(previousGameMode bwand WORLDMAP) andAlso
         currentGameMode bwand WORLDMAP then begin
       partyMemberList = party_member_list(0);
-
       fix_array(partyMemberList);
 
       partyMemberAdditionalSkillPoints = {};
-
       fix_array(partyMemberAdditionalSkillPoints);
 
-      foreach partyMember in partyMemberList
+      foreach partyMember in partyMemberList begin
         if partyMember != dude_obj then begin
+          partyMemberAdditionalSkillPoints[partyMember] =
+            get_critter_skill_points(partyMember, SKILL_OUTDOORSMAN);
           if debuggingEnabled == 1 then begin
             display_msg(obj_name(partyMember) + ", outdoorsman skill: " +
               has_skill(partyMember, SKILL_OUTDOORSMAN));
@@ -101,28 +104,28 @@ procedure gameModeChangeHandler begin
               get_critter_skill_points(partyMember, SKILL_OUTDOORSMAN));
           end
 
-          partyMemberAdditionalSkillPoints[partyMember] =
-            get_critter_skill_points(partyMember, SKILL_OUTDOORSMAN);
-
           set_critter_skill_points(partyMember, SKILL_OUTDOORSMAN, -200);
-
-          if debuggingEnabled == 1 then
+          if debuggingEnabled == 1 then begin
             display_msg(obj_name(partyMember) + ", outdoorsman skill: " +
               has_skill(partyMember, SKILL_OUTDOORSMAN));
+          end
         end
+      end
     end
 
     // Exiting world map.
     if previousGameMode bwand WORLDMAP andAlso
-        not(currentGameMode bwand WORLDMAP) then
-      foreach partyMember in partyMemberList
+        not(currentGameMode bwand WORLDMAP) then begin
+      foreach partyMember in partyMemberList begin
         if partyMember != dude_obj then begin
           set_critter_skill_points(partyMember, SKILL_OUTDOORSMAN,
             partyMemberAdditionalSkillPoints[partyMember]);
-
-          if debuggingEnabled == 1 then
+          if debuggingEnabled == 1 then begin
             display_msg(obj_name(partyMember) + ", outdoorsman skill: " +
               has_skill(partyMember, SKILL_OUTDOORSMAN));
+          end
         end
+      end
+    end
   end
 end

@@ -1,10 +1,9 @@
 #include "headers/sfall/sfall.h"
 #include "headers/sfall/define_lite.h"
+
 #include "headers/fallout-2-adjustments.h"
 
 variable builtInFunctionsEnabled;
-
-procedure builtInFunctions;
 
 // Hook handlers in alphabetical order.
 procedure barterPriceHandler;
@@ -18,83 +17,99 @@ procedure moveCostHandler;
 procedure onDeathHandler;
 procedure rollCheckHandler;
 procedure sneakHandler;
+procedure stdProcedureHandler;
+procedure stdProcedureEndHandler;
 procedure useObjHandler;
 procedure useObjOnHandler;
 procedure useSkillHandler;
 procedure useSkillOnHandler;
 procedure withinPerceptionHandler;
 
+procedure builtInFunctions;
+procedure getGameModeNamesString(variable gameMode);
+procedure getItemSubtypeName(variable number);
+procedure getRollResultName(variable number);
+procedure getStdProcedureName(variable number);
+
 procedure start begin
   if game_loaded then begin
     variable developerTools = get_ini_section(INI_PATH, "developerTools");
 
     if developerTools["allHooks"] == "1" orElse
-        developerTools["barterPrice"] == "1" then
+        developerTools["barterPrice"] == "1" then begin
       register_hook_proc(HOOK_BARTERPRICE, barterPriceHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["calcApCost"] == "1" then
+        developerTools["calcApCost"] == "1" then begin
       register_hook_proc(HOOK_CALCAPCOST, calcApCostHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["combatTurn"] == "1" then
+        developerTools["combatTurn"] == "1" then begin
       register_hook_proc(HOOK_COMBATTURN, combatTurnHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["encounter"] == "1" then
+        developerTools["encounter"] == "1" then begin
       register_hook_proc(HOOK_ENCOUNTER, encounterHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["gameModeChange"] == "1" then
+        developerTools["gameModeChange"] == "1" then begin
       register_hook_proc(HOOK_GAMEMODECHANGE, gameModeChangeHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["inventoryMove"] == "1" then
+        developerTools["inventoryMove"] == "1" then begin
       register_hook_proc(HOOK_INVENTORYMOVE, inventoryMoveHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["keyPress"] == "1" then
+        developerTools["keyPress"] == "1" then begin
       register_hook_proc(HOOK_KEYPRESS, keyPressHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["moveCost"] == "1" then
+        developerTools["moveCost"] == "1" then begin
       register_hook_proc(HOOK_MOVECOST, moveCostHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["onDeath"] == "1" then
+        developerTools["onDeath"] == "1" then begin
       register_hook_proc(HOOK_ONDEATH, onDeathHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["rollCheck"] == "1" then
+        developerTools["rollCheck"] == "1" then begin
       register_hook_proc(HOOK_ROLLCHECK, rollCheckHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["sneak"] == "1" then
+        developerTools["sneak"] == "1" then begin
       register_hook_proc(HOOK_SNEAK, sneakHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["useObj"] == "1" then
+        developerTools["stdProcedure"] == "1" then begin
+      register_hook_proc(HOOK_STDPROCEDURE, stdProcedureHandler);
+    end
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["stdProcedureEnd"] == "1" then begin
+      register_hook_proc(HOOK_STDPROCEDURE_END, stdProcedureEndHandler);
+    end
+    if developerTools["allHooks"] == "1" orElse
+        developerTools["useObj"] == "1" then begin
       register_hook_proc(HOOK_USEOBJ, useObjHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["useObjOn"] == "1" then
+        developerTools["useObjOn"] == "1" then begin
       register_hook_proc(HOOK_USEOBJON, useObjOnHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["useSkill"] == "1" then
+        developerTools["useSkill"] == "1" then begin
       register_hook_proc(HOOK_USESKILL, useSkillHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["useSkillOn"] == "1" then
+        developerTools["useSkillOn"] == "1" then begin
       register_hook_proc(HOOK_USESKILLON, useSkillOnHandler);
-
+    end
     if developerTools["allHooks"] == "1" orElse
-        developerTools["withinPerception"] == "1" then
+        developerTools["withinPerception"] == "1" then begin
       register_hook_proc(HOOK_WITHINPERCEPTION, withinPerceptionHandler);
+    end
 
     if developerTools["builtInFunctions"] == "1" then begin
       builtInFunctionsEnabled = true;
-
       call builtInFunctions;
     end
   end
@@ -121,17 +136,15 @@ procedure builtInFunctions begin
   display_msg("get_game_mode: " + get_game_mode);
   display_msg("combat_is_initialized: " + combat_is_initialized);
   display_msg("---");
-  display_msg("get_outline(dude_obj): " + get_outline(dude_obj));
 
+  display_msg("get_outline(dude_obj): " + get_outline(dude_obj));
   if get_outline(dude_obj) == 0 then begin
     display_msg("set_outline(dude_obj, OUTLINE_YELLOW)");
     set_outline(dude_obj, OUTLINE_YELLOW);
-  end
-  else begin
+  end else begin
     display_msg("set_outline(dude_obj, OUTLINE_NONE)");
     set_outline(dude_obj, OUTLINE_NONE);
   end
-
   display_msg("tile_refresh_display");
   tile_refresh_display;
 
@@ -175,11 +188,16 @@ end
 procedure calcApCostHandler begin
   variable
     critter = get_sfall_arg_at(0),
-    apCost = get_sfall_arg_at(3);
+    attackType = get_sfall_arg_at(1),
+    apCost = get_sfall_arg_at(3),
+    weapon = get_sfall_arg_at(4);
 
   display_msg(
     "HOOK_CALCAPCOST. critterName: " + obj_name(critter) +
+    ", attackType: " + attackType +
     ", apCost: " + apCost +
+    ", weapon: " + weapon +
+    ", weaponName: " + obj_name(weapon) +
     "."
   );
 end
@@ -214,28 +232,89 @@ procedure gameModeChangeHandler begin
   display_msg(
     "HOOK_GAMEMODECHANGE. eventType: " + eventType +
     ", previousGameMode: " + previousGameMode +
+    ", previousGameModeName: " + getGameModeNamesString(previousGameMode) +
     ", currentGameMode: " + get_game_mode +
+    ", currentGameModeName: " + getGameModeNamesString(get_game_mode) +
     "."
   );
+end
+
+procedure getGameModeNamesString(variable gameMode) begin
+  variable gameModeNames ={
+    "WORLDMAP":    WORLDMAP,
+    "LOCALMAP":    LOCALMAP,
+    "DIALOG":      DIALOG,
+    "ESCMENU":     ESCMENU,
+    "SAVEGAME":    SAVEGAME,
+    "LOADGAME":    LOADGAME,
+    "COMBAT":      COMBAT,
+    "OPTIONS":     OPTIONS,
+    "HELP":        HELP,
+    "CHARSCREEN":  CHARSCREEN,
+    "PIPBOY":      PIPBOY,
+    "PCOMBAT":     PCOMBAT,
+    "INVENTORY":   INVENTORY,
+    "AUTOMAP":     AUTOMAP,
+    "SKILLDEX":    SKILLDEX,
+    "INTFACEUSE":  INTFACEUSE,
+    "INTFACELOOT": INTFACELOOT,
+    "BARTER":      BARTER,
+    "HEROWIN":     HEROWIN,
+    "DIALOGVIEW":  DIALOGVIEW,
+    "COUNTERWIN":  COUNTERWIN,
+    "SPECIAL":     SPECIAL
+  };
+
+  variable gameModeNamesString = "", index, value;
+
+  foreach index: value in gameModeNames begin
+    if gameMode bwand value then begin
+      if gameModeNamesString != "" then gameModeNamesString += " ";
+      gameModeNamesString += index;
+    end
+  end
+
+  if gameModeNamesString == "" then gameModeNamesString = "-";
+
+  return gameModeNamesString;
 end
 
 procedure inventoryMoveHandler begin
   variable
     targetSlot = get_sfall_arg_at(0),
     movedItem = get_sfall_arg_at(1),
-    replacedItem = get_sfall_arg_at(2);
+    replacedItem = get_sfall_arg_at(2),
+    movedItemSubtype = obj_item_subtype(movedItem);
 
   display_msg(
     "HOOK_INVENTORYMOVE. targetSlot: " + targetSlot +
     ", movedItem: " + movedItem +
     ", movedItemName: " + obj_name(movedItem) +
     ", movedItemPid: " + obj_pid(movedItem) +
-    // #define item_type_armor (0)
-    ", movedItemSubtype: " + obj_item_subtype(movedItem) +
+    ", movedItemSubtype: " + movedItemSubtype +
+    ", movedItemSubtypeName: " + getItemSubtypeName(movedItemSubtype) +
     ", replacedItem: " + replacedItem +
     ", replacedItemName: " + obj_name(replacedItem) +
     "."
   );
+end
+
+procedure getItemSubtypeName(variable number) begin
+  variable itemSubtypeNames = {
+    "item_type_armor":     item_type_armor,
+    "item_type_container": item_type_container,
+    "item_type_drug":      item_type_drug,
+    "item_type_weapon":    item_type_weapon,
+    "item_type_ammo":      item_type_ammo,
+    "item_type_misc_item": item_type_misc_item,
+    "item_type_key_item":  item_type_key_item
+  };
+
+  variable index, value;
+
+  foreach index: value in itemSubtypeNames begin
+    if value == number then return index;
+  end
 end
 
 procedure keyPressHandler begin
@@ -249,8 +328,10 @@ procedure keyPressHandler begin
     "."
   );
 
-  if builtInFunctionsEnabled andAlso keyCode == 41 andAlso eventType == 0 then
+  if builtInFunctionsEnabled andAlso
+      keyCode == 41 andAlso eventType == 0 then begin
     call builtInFunctions;
+  end
 end
 
 procedure moveCostHandler begin
@@ -280,19 +361,30 @@ end
 procedure rollCheckHandler begin
   variable
     eventType = get_sfall_arg_at(0),
-    // ROLL_CRITICAL_FAILURE (0)
-    // ROLL_FAILURE (1)
-    // ROLL_SUCCESS (2)
-    // ROLL_CRITICAL_SUCCESS (3)
-    rollResult = get_sfall_arg_at(1),
-    rollSuccess = is_success(rollResult);
+    rollResult = get_sfall_arg_at(1);
 
   display_msg(
     "HOOK_ROLLCHECK. eventType: " + eventType +
     ", rollResult: " + rollResult +
-    ", rollSuccess: " + rollSuccess +
+    ", rollResultName: " + getRollResultName(rollResult) +
+    ", rollSuccess: " + is_success(rollResult) +
     "."
   );
+end
+
+procedure getRollResultName(variable number) begin
+  variable rollResultNames = {
+    "ROLL_CRITICAL_FAILURE": ROLL_CRITICAL_FAILURE,
+    "ROLL_FAILURE":          ROLL_FAILURE,
+    "ROLL_SUCCESS":          ROLL_SUCCESS,
+    "ROLL_CRITICAL_SUCCESS": ROLL_CRITICAL_SUCCESS
+  };
+
+  variable index, value;
+
+  foreach index: value in rollResultNames begin
+    if value == number then return index;
+  end
 end
 
 procedure sneakHandler begin
@@ -305,6 +397,75 @@ procedure sneakHandler begin
     ", sneakCheckDuration: " + sneakCheckDuration +
     "."
   );
+end
+
+procedure stdProcedureHandler begin
+  variable
+    standardProcedure = get_sfall_arg_at(0),
+    owner = get_sfall_arg_at(1),
+    caller = get_sfall_arg_at(2),
+    target = get_sfall_arg_at(4);
+
+  display_msg(
+    "HOOK_STDPROCEDURE. standardProcedure: " + standardProcedure +
+    ", stdProcedureName: " + getStdProcedureName(standardProcedure) +
+    ", ownerName: " + obj_name(owner) +
+    ", callerName: " + obj_name(caller) +
+    ", targetName: " + obj_name(target) +
+    "."
+  );
+end
+
+procedure stdProcedureEndHandler begin
+  variable
+    standardProcedure = get_sfall_arg_at(0),
+    owner = get_sfall_arg_at(1),
+    caller = get_sfall_arg_at(2),
+    target = get_sfall_arg_at(4);
+
+  display_msg(
+    "HOOK_STDPROCEDURE_END. standardProcedure: " + standardProcedure +
+    ", stdProcedureName: " + getStdProcedureName(standardProcedure) +
+    ", ownerName: " + obj_name(owner) +
+    ", callerName: " + obj_name(caller) +
+    ", targetName: " + obj_name(target) +
+    "."
+  );
+end
+
+procedure getStdProcedureName(variable number) begin
+  variable stdProcedureNames = {
+    "no_proc":           no_proc,
+    "start_proc":        start_proc,
+    "spatial_proc":      spatial_proc,
+    "description_proc":  description_proc,
+    "pickup_proc":       pickup_proc,
+    "drop_proc":         drop_proc,
+    "use_proc":          use_proc,
+    "use_obj_on_proc":   use_obj_on_proc,
+    "use_skill_on_proc": use_skill_on_proc,
+    "use_ad_on_proc":    use_ad_on_proc,
+    "use_disad_on_proc": use_disad_on_proc,
+    "talk_proc":         talk_proc,
+    "critter_proc":      critter_proc,
+    "combat_proc":       combat_proc,
+    "damage_proc":       damage_proc,
+    "map_enter_proc":    map_enter_proc,
+    "map_exit_proc":     map_exit_proc,
+    "create_proc":       create_proc,
+    "destroy_proc":      destroy_proc,
+    "barter_init_proc":  barter_init_proc,
+    "barter_proc":       barter_proc,
+    "look_at_proc":      look_at_proc,
+    "timed_event_proc":  timed_event_proc,
+    "map_update_proc":   map_update_proc
+  };
+
+  variable index, value;
+
+  foreach index: value in stdProcedureNames begin
+    if value == number then return index;
+  end
 end
 
 procedure useObjHandler begin
@@ -360,7 +521,7 @@ procedure withinPerceptionHandler begin
     withinPerception = get_sfall_arg_at(2),
     hookType = get_sfall_arg_at(3);
 
-  if combat_is_initialized then
+  if combat_is_initialized then begin
     display_msg(
       "HOOK_WITHINPERCEPTION. watcherName: " + obj_name(watcher) +
       ", targetName: " + obj_name(target) +
@@ -368,4 +529,5 @@ procedure withinPerceptionHandler begin
       ", hookType: " + hookType +
       "."
     );
+  end
 end

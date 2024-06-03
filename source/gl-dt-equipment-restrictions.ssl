@@ -1,5 +1,6 @@
 #include "headers/sfall/sfall.h"
 #include "headers/sfall/define_lite.h"
+
 #include "headers/fallout-2-adjustments.h"
 
 variable
@@ -8,6 +9,7 @@ variable
   debuggingEnabled;
 
 procedure inventoryMoveHandler;
+
 procedure getArmorPid(variable armor);
 
 procedure start begin
@@ -20,7 +22,6 @@ procedure start begin
     if armorRestrictions != "" orElse weaponRestrictions != "" then begin
       debuggingEnabled = get_ini_setting(
         INI_PATH "|debugging|equipmentRestrictions");
-
       armorRestrictions = string_split(armorRestrictions, ",");
       weaponRestrictions = string_split(weaponRestrictions, ",");
 
@@ -32,16 +33,14 @@ procedure start begin
           display_msg("armor: " + value);
           display_msg("armor PID: " + getArmorPid(value));
         end
-
         armorRestrictions[index] = getArmorPid(value);
       end
-
       fix_array(armorRestrictions);
 
       // Convert to integers.
-      foreach index: value in weaponRestrictions
+      foreach index: value in weaponRestrictions begin
         weaponRestrictions[index] = atoi(value);
-
+      end
       fix_array(weaponRestrictions);
 
       register_hook_proc(HOOK_INVENTORYMOVE, inventoryMoveHandler);
@@ -61,6 +60,8 @@ procedure inventoryMoveHandler begin
     set_sfall_return(0);
 
     display_msg("Cannot equip the " + obj_name(movedItem) + ".");
+
+    return;
   end
 
   // Weapon restrictions.

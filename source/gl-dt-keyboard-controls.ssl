@@ -1,16 +1,20 @@
 #include "headers/sfall/sfall.h"
+
 #include "headers/fallout-2-adjustments.h"
 
 variable
   keyMapping,
   disabledKeys,
   openCloseWithSameKey,
-  previouslyPressedInSaveGame,
-  previouslyPressedInSkilldex,
-  previouslyPressedInInventory,
   debuggingEnabled;
 
+variable
+  previouslyPressedInSaveGame,
+  previouslyPressedInSkilldex,
+  previouslyPressedInInventory;
+
 procedure keyPressHandler;
+
 procedure getKeyCode(variable key);
 
 procedure start begin
@@ -19,7 +23,6 @@ procedure start begin
         then begin
       debuggingEnabled = get_ini_setting(
         INI_PATH "|debugging|keyboardControls");
-
       keyMapping = get_ini_section(INI_PATH, "keyboardControlsMapping");
 
       variable index, value;
@@ -27,13 +30,11 @@ procedure start begin
       // Convert key names to codes.
       foreach index: value in keyMapping begin
         index = getKeyCode(index);
-
         keyMapping[index] = getKeyCode(value);
-
-        if debuggingEnabled == 1 then
+        if debuggingEnabled == 1 then begin
           display_msg(index + "=" + keyMapping[index]);
+        end
       end
-
       fix_array(keyMapping);
 
       disabledKeys = string_split(
@@ -42,11 +43,10 @@ procedure start begin
       // Convert key names to codes.
       foreach index: value in disabledKeys begin
         disabledKeys[index] = getKeyCode(value);
-
-        if debuggingEnabled == 1 then
+        if debuggingEnabled == 1 then begin
           display_msg("disabledKeys[" + index + "]: " + disabledKeys[index]);
+        end
       end
-
       fix_array(disabledKeys);
 
       openCloseWithSameKey =
@@ -59,8 +59,8 @@ end
 
 procedure keyPressHandler begin
   variable
+    // released = not(pressed)
     pressed = get_sfall_arg_at(0),
-    // released = not(pressed);
     pressedKey = get_sfall_arg_at(1),
     mappedDefaultKey = scan_array(keyMapping, pressedKey),
     currentGameMode = get_game_mode;
@@ -96,11 +96,12 @@ procedure keyPressHandler begin
         pressedKey == getKeyCode("I")) then begin
       if currentGameMode bwand INVENTORY orElse
           currentGameMode bwand INTFACEUSE orElse
-          currentGameMode bwand INTFACELOOT then
+          currentGameMode bwand INTFACELOOT then begin
         previouslyPressedInInventory = true;
-      else previouslyPressedInInventory = false;
+      end else previouslyPressedInInventory = false;
 
       set_sfall_return(getKeyCode("Esc"));
+      return;
     end
 
     // Close Skilldex window with the same key.
@@ -112,13 +113,18 @@ procedure keyPressHandler begin
       else previouslyPressedInSkilldex = false;
 
       set_sfall_return(getKeyCode("Esc"));
+      return;
     end
   end
 
-  if mappedDefaultKey != -1 then set_sfall_return(mappedDefaultKey);
+  if mappedDefaultKey != -1 then begin
+    set_sfall_return(mappedDefaultKey);
+    return;
+  end
 
-  if scan_array(disabledKeys, pressedKey) != -1 then
+  if scan_array(disabledKeys, pressedKey) != -1 then begin
     set_sfall_return(getKeyCode("DISABLED"));
+  end
 end
 
 // DirectX scancodes (DX codes) for input keys.

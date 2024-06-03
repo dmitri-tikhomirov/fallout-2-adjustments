@@ -1,4 +1,5 @@
 #include "headers/sfall/sfall.h"
+
 #include "headers/fallout-2-adjustments.h"
 
 variable debuggingEnabled;
@@ -9,14 +10,19 @@ procedure start begin
 
     if levelCap == 0 orElse levelCap == -1 then return;
 
+    debuggingEnabled = get_ini_setting(INI_PATH "|debugging|levelCap");
+    variable xpMultiplier =
+      atof(get_ini_string(INI_PATH "|levelCap|xpMultiplier"));
+
+    if xpMultiplier == 0 orElse xpMultiplier == -1 then xpMultiplier = 1;
+    if debuggingEnabled == 1 then display_msg("xpMultiplier: " + xpMultiplier);
+
     variable
       sfallIniPath = get_ini_string(INI_PATH "|levelCap|sfallIniPath"),
       sfallIniSection = get_ini_string(INI_PATH "|levelCap|sfallIniSection"),
       sfallIniSetting = get_ini_string(INI_PATH "|levelCap|sfallIniSetting"),
       sfallIniSettingFullPath = sfallIniPath + "|" + sfallIniSection + "|" +
         sfallIniSetting;
-
-    debuggingEnabled = get_ini_setting(INI_PATH "|debugging|levelCap");
 
     // Do not edit the file if the setting is missing.
     if get_ini_setting(sfallIniSettingFullPath) == -1 andAlso
@@ -29,8 +35,7 @@ procedure start begin
     variable xpTable = "", i;
 
     for (i = 2; i <= levelCap; i++) begin
-      xpTable += 500 * i * (i - 1);
-
+      xpTable += floor(500 * i * (i - 1) * xpMultiplier);
       if i != levelCap then xpTable += ",";
     end
 
@@ -38,11 +43,13 @@ procedure start begin
     if xpTable != get_ini_string(sfallIniSettingFullPath) then begin
       set_ini_setting(sfallIniSettingFullPath, xpTable);
 
-      if debuggingEnabled == 1 then
+      if debuggingEnabled == 1 then begin
         display_msg("Edited the setting in file.");
-    end
-    else
-      if debuggingEnabled == 1 then
+      end
+    end else begin
+      if debuggingEnabled == 1 then begin
         display_msg("The required level cap is already set.");
+      end
+    end
   end
 end

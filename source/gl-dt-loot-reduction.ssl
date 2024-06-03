@@ -1,5 +1,12 @@
+// Keep track only of weapons.
+// Reduce ammo and drugs to 1 stack or 1 item? The same for throwing knives?
+// Reduce ammo and drugs randomly?
+// Do not reduce misc?
+// Do not bother with encountersOnly?
+
 #include "headers/sfall/sfall.h"
 #include "headers/sfall/define_lite.h"
+
 #include "headers/fallout-2-adjustments.h"
 
 variable
@@ -11,8 +18,9 @@ variable
   excludedItems,
   debuggingEnabled;
 
-procedure getInventoryContents(variable critter);
 procedure onDeathHandler;
+
+procedure getInventoryContents(variable critter);
 
 procedure start begin
   if game_loaded then begin
@@ -36,9 +44,9 @@ procedure start begin
       variable index, value;
 
       // Convert to integers.
-      foreach index: value in excludedItems
+      foreach index: value in excludedItems begin
         excludedItems[index] = atoi(value);
-
+      end
       fix_array(excludedItems);
 
       register_hook_proc(HOOK_ONDEATH, onDeathHandler);
@@ -49,26 +57,28 @@ end
 procedure onDeathHandler begin
   variable theDeceased = get_sfall_arg_at(0);
 
-  if party_member_obj(obj_pid(theDeceased)) orElse theDeceased == dude_obj then
+  if party_member_obj(obj_pid(theDeceased)) orElse
+      theDeceased == dude_obj then begin
     return;
+  end
 
   variable
     inventoryContents = getInventoryContents(theDeceased),
     index, value;
 
-  foreach (index: value in inventoryContents) begin
+  foreach index: value in inventoryContents begin
     if value == item_type_weapon andAlso weaponsReductionNumber > 1 andAlso
         scan_array(excludedItems, obj_pid(index)) == -1 then begin
-      // Keep track only of weapons?
+
     end
   end
 
   if debuggingEnabled == 1 then begin
     display_msg("theDeceased, name: " + obj_name(theDeceased));
     display_msg("inventoryContents:");
-
-    foreach (index: value in inventoryContents)
+    foreach index: value in inventoryContents begin
       display_msg(obj_name(index) + ": " + value);
+    end
   end
 end
 
@@ -78,7 +88,6 @@ procedure getInventoryContents(variable critter) begin
   while inven_ptr(critter, slotNumber) do begin
     inventoryContents[inven_ptr(critter, slotNumber)] =
       obj_item_subtype(inven_ptr(critter, slotNumber));
-
     slotNumber++;
   end
 

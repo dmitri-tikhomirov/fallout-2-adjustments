@@ -24,15 +24,17 @@ The mod is fully modular. Each component can be disabled in the `.ini` file. Dis
   - Prevents buying for a lower price than what you sell for, avoiding one of the ways to break the economy.
 - Level cap.
   - Disabled by default. Puts an optional level cap on the player to make the game harder. You will still accumulate experience as normal after reaching the cap, but you won't get another level.
+  - You can scale the required XP for every level to make the game harder or easier. For example, multiply all level XP requirements by 1.25 to account for more experience available when playing with [Restoration Project](https://github.com/BGforgeNet/Fallout2_Restoration_Project).
 - Equipment restrictions.
   - Disabled by default. Puts optional restrictions on armor and weapons the player can use. For example, you can restrict all kinds of power armor for a "no power armor" playthrough.
 - Party members' skills do not replace the player's skills.
   - The unfixed mechanic in the vanilla game made certain skills largely irrelevant, allowing you to rely on companions instead of investing in your own skills.
   - Prevents a party member's barter skill replacing the player's barter skill.
   - Prevents a party member's outdoorsman skill replacing the player's outdoorsman skill.
-- Armor penalty.
+- Sneak penalty.
   - Heavy armor penalizes sneak skill, by a percentage, depending on armor weight. All kinds of leather armor are light enough for a 0% penalty. The heaviest armor in the game = 100% penalty (meaning sneak becomes 0). You won't be able to put on armor while in sneak mode.
-  - To see the current penalty, open the character screen while in sneak mode. Once you do this, a text message will be added.
+    - To see the current penalty, open the character screen while in sneak mode. Once you do this, a text message will be added.
+  - In combat mode, sneak checks are always failed. This does not mean that sneaking in combat is completely useless. But it does make it harder to exploit sneak in combat. For example, it prevents spamming sneak many times to close combat.
 - Settings transfer.
   - Disabled by default. A tool to help you automatically transfer settings between old and new `.ini` files. Useful when updating mods if you have a lot of custom settings.
 
@@ -72,3 +74,11 @@ For a close to vanilla but improved experience:
   - Maps for Restoration Project that look closer to the original game.
 - [FO2tweaks](https://github.com/BGforgeNet/FO2tweaks).
   - Contains a good damage formula and some quality of life features. There are options to disable everything you don't need. Be careful when disabling changes to knockback, you need to put "-1" instead of "0".
+
+## Thanks to
+
+Posts and code written by these authors helped me learn (the basics of) Fallout 2 modding:
+
+- phobos2077, [EcCo Gameplay Overhaul](https://github.com/phobos2077/fo2_ecco).
+- Magus at BGforge, [FO2tweaks](https://github.com/BGforgeNet/FO2tweaks).
+- dekrus, [Fallout2MechanicsMiniRework](https://github.com/dekrus/Fallout2MechanicsMiniRework).

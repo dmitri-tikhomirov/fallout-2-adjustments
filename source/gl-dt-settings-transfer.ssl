@@ -1,4 +1,5 @@
 #include "headers/sfall/sfall.h"
+
 #include "headers/fallout-2-adjustments.h"
 
 variable debuggingEnabled;
@@ -12,11 +13,10 @@ procedure start begin
         get_ini_setting(INI_PATH "|settingsTransfer|compareAndTransfer");
 
     if (compareOnly == 0 orElse compareOnly == -1) andAlso
-        (compareAndTransfer == 0 orElse compareAndTransfer == -1) then
+        (compareAndTransfer == 0 orElse compareAndTransfer == -1) then begin
       return;
-    else begin
+    end else begin
       display_msg("Checking settings...");
-
       if compareAndTransfer == 1 then display_msg("Transfer is on.");
       else display_msg("Transfer is off.");
     end
@@ -33,11 +33,13 @@ procedure start begin
 
     debuggingEnabled = get_ini_setting(INI_PATH "|debugging|settingsTransfer");
 
-    if debuggingEnabled == 1 then
-      foreach setting in excludedSettings
+    if debuggingEnabled == 1 then begin
+      foreach setting in excludedSettings begin
         display_msg(setting + " is excluded.");
+      end
+    end
 
-    foreach section: settings in oldIniConfig
+    foreach section: settings in oldIniConfig begin
       foreach setting: value in settings begin
         variable
           settingNewIniFullPath = newIniPath + "|" + section + "|" + setting;
@@ -45,26 +47,24 @@ procedure start begin
         if get_ini_setting(settingNewIniFullPath) == -1 andAlso
             get_ini_string(settingNewIniFullPath) != "-1" then begin
           missingCount++;
-
           display_msg(setting + " is missing.");
-        end
-        else
+        end else begin
           if compareAndTransfer == 1 andAlso
               scan_array(excludedSettings, setting) == -1 then begin
             set_ini_setting(settingNewIniFullPath, value);
-
             transferredCount++;
           end
+        end
 
         checkedCount++;
       end
+    end
 
     display_msg(checkedCount + " setting(s) checked.");
     display_msg(missingCount + " setting(s) missing.");
     display_msg(transferredCount + " setting(s) transferred.");
     display_msg(
       len_array(excludedSettings) + " setting(s) in exclusion list.");
-
     display_msg("Done.");
   end
 end
