@@ -9,9 +9,10 @@ variable
   debuggingEnabled;
 
 variable
-  previouslyPressedInSaveGame,
-  previouslyPressedInSkilldex,
-  previouslyPressedInInventory;
+  isDisabledKeyPressSet,
+  isInventoryPressSet,
+  isSkilldexPressSet,
+  isMappedKeyPressSet;
 
 procedure keyPressHandler;
 
@@ -58,80 +59,94 @@ procedure start begin
 end
 
 procedure keyPressHandler begin
+  variable currentGameMode = get_game_mode;
+
+  // Disable custom keys in save game window to write comments there properly.
+  // Disable custom keys in the Esc menu, in dialogue.
+  // Because you can use the first letters to select certain options there.
+  if (currentGameMode bwand SAVEGAME orElse
+      currentGameMode bwand ESCMENU orElse
+      currentGameMode bwand DIALOG) andAlso
+      // In case a key that opens one of the above modes is overridden,
+      // allow to override its release.
+      not(isMappedKeyPressSet) then begin
+    return;
+  end
+
   variable
-    // released = not(pressed)
     pressed = get_sfall_arg_at(0),
-    pressedKey = get_sfall_arg_at(1),
-    mappedDefaultKey = scan_array(keyMapping, pressedKey),
-    currentGameMode = get_game_mode;
+    released = not(pressed),
+    key = get_sfall_arg_at(1);
+
+  if scan_array(disabledKeys, key) != -1 then begin
+    // Do not override release if press was not overridden.
+    if released andAlso not(isDisabledKeyPressSet) then return;
+    else begin
+      if pressed then isDisabledKeyPressSet = true;
+      else isDisabledKeyPressSet = false;
+
+      set_sfall_return(KEY_CODE_DISABLED);
+      return;
+    end
+  end
+
+  variable mappedKey = scan_array(keyMapping, key);
 
   if debuggingEnabled == 1 then begin
     display_msg("pressed: " + pressed);
-    display_msg("pressedKey: " + pressedKey);
-    display_msg("mappedDefaultKey: " + mappedDefaultKey);
+    display_msg("key: " + key);
+    display_msg("mappedKey: " + mappedKey);
     display_msg("Inventory mode: " + (currentGameMode bwand INVENTORY));
     display_msg("INTFACEUSE mode: " + (currentGameMode bwand INTFACEUSE));
     display_msg("INTFACELOOT mode: " + (currentGameMode bwand INTFACELOOT));
     display_msg("Skilldex mode: " + (currentGameMode bwand SKILLDEX));
   end
 
-  // Disable custom keys in save game window to write comments there properly.
-  // Game mode changes before you release the key,
-  // but you need to set both to override correctly.
-  if currentGameMode bwand SAVEGAME andAlso pressed orElse
-      previouslyPressedInSaveGame then begin
-    if currentGameMode bwand SAVEGAME then previouslyPressedInSaveGame = true;
-    else previouslyPressedInSaveGame = false;
-
-    return;
-  end
-
   if openCloseWithSameKey == 1 then begin
     // Close Inventory window with the same key.
-    if ((currentGameMode bwand INVENTORY orElse
+    // Game mode changes before you release the key,
+    // but you need to set both press and release events to override correctly.
+    if (mappedKey == KEY_CODE_I orElse key == KEY_CODE_I) andAlso
+        ((currentGameMode bwand INVENTORY orElse
         currentGameMode bwand INTFACEUSE orElse
         currentGameMode bwand INTFACELOOT) andAlso pressed orElse
-        previouslyPressedInInventory) andAlso
-        (mappedDefaultKey == getKeyCode("I") orElse
-        pressedKey == getKeyCode("I")) then begin
-      if currentGameMode bwand INVENTORY orElse
-          currentGameMode bwand INTFACEUSE orElse
-          currentGameMode bwand INTFACELOOT then begin
-        previouslyPressedInInventory = true;
-      end else previouslyPressedInInventory = false;
+        isInventoryPressSet) then begin
+      if pressed then isInventoryPressSet = true;
+      else isInventoryPressSet = false;
 
-      set_sfall_return(getKeyCode("Esc"));
+      set_sfall_return(KEY_CODE_ESC);
       return;
     end
 
     // Close Skilldex window with the same key.
-    if (currentGameMode bwand SKILLDEX andAlso pressed orElse
-        previouslyPressedInSkilldex) andAlso
-        (mappedDefaultKey == getKeyCode("S") orElse
-        pressedKey == getKeyCode("S")) then begin
-      if currentGameMode bwand SKILLDEX then previouslyPressedInSkilldex = true;
-      else previouslyPressedInSkilldex = false;
+    if (mappedKey == KEY_CODE_S orElse key == KEY_CODE_S) andAlso
+        (currentGameMode bwand SKILLDEX andAlso pressed orElse
+        isSkilldexPressSet) then begin
+      if pressed then isSkilldexPressSet = true;
+      else isSkilldexPressSet = false;
 
-      set_sfall_return(getKeyCode("Esc"));
+      set_sfall_return(KEY_CODE_ESC);
       return;
     end
   end
 
-  if mappedDefaultKey != -1 then begin
-    set_sfall_return(mappedDefaultKey);
-    return;
-  end
+  if mappedKey != -1 then begin
+    if released andAlso not(isMappedKeyPressSet) then return;
+    else begin
+      if pressed then isMappedKeyPressSet = true;
+      else isMappedKeyPressSet = false;
 
-  if scan_array(disabledKeys, pressedKey) != -1 then begin
-    set_sfall_return(getKeyCode("DISABLED"));
+      set_sfall_return(mappedKey);
+      return;
+    end
   end
 end
 
 // DirectX scancodes (DX codes) for input keys.
 procedure getKeyCode(variable key) begin
   variable keyCodes = {
-    "ESC":          1,
-    "ESCAPE":       1,
+    "ESC":          KEY_CODE_ESC,
+    "ESCAPE":       KEY_CODE_ESC,
     "1":            2,
     "2":            3,
     "3":            4,
@@ -157,7 +172,7 @@ procedure getKeyCode(variable key) begin
     "T":            20,
     "Y":            21,
     "U":            22,
-    "I":            23,
+    "I":            KEY_CODE_I,
     "O":            24,
     "P":            25,
     "[":            26,
@@ -178,7 +193,7 @@ procedure getKeyCode(variable key) begin
     "LEFTCONTROL":  29,
     "LCONTROL":     29,
     "A":            30,
-    "S":            31,
+    "S":            KEY_CODE_S,
     "D":            32,
     "F":            33,
     "G":            34,
@@ -190,10 +205,10 @@ procedure getKeyCode(variable key) begin
     "SEMICOLON":    39,
     "'":            40,
     "APOSTROPHE":   40,
-    "`":            41,
-    "~":            41,
-    "BACKTICK":     41,
-    "TILDE":        41,
+    "`":            KEY_CODE_TILDE,
+    "~":            KEY_CODE_TILDE,
+    "BACKTICK":     KEY_CODE_TILDE,
+    "TILDE":        KEY_CODE_TILDE,
     "SHIFT":        42,
     "LEFTSHIFT":    42,
     "LSHIFT":       42,
@@ -305,7 +320,7 @@ procedure getKeyCode(variable key) begin
     "DEL":          211,
 
     // A code to disable keys.
-    "DISABLED":     256
+    "DISABLED":     KEY_CODE_DISABLED
   };
 
   key = string_toupper(key);

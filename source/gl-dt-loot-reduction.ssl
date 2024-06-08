@@ -1,22 +1,19 @@
-// Keep track only of weapons.
-// Reduce ammo and drugs to 1 stack or 1 item? The same for throwing knives?
-// Reduce ammo and drugs randomly?
-// Do not reduce misc?
-// Do not bother with encountersOnly?
-
 #include "headers/sfall/sfall.h"
 #include "headers/sfall/define_lite.h"
+#include "headers/sfall/define_extra.h"
 
 #include "headers/fallout-2-adjustments.h"
+
+#define SAVED_ARRAY_NAME "dt-loot-reduction"
 
 variable
   weaponsReductionNumber,
   ammoReductionNumber,
   drugsReductionNumber,
-  miscReductionNumber,
-  encountersOnly,
   excludedItems,
   debuggingEnabled;
+
+variable weaponsProgress;
 
 procedure onDeathHandler;
 
@@ -30,13 +27,9 @@ procedure start begin
       INI_PATH "|lootReduction|ammoReductionNumber");
     drugsReductionNumber = get_ini_setting(
       INI_PATH "|lootReduction|drugsReductionNumber");
-    miscReductionNumber = get_ini_setting(
-      INI_PATH "|lootReduction|miscReductionNumber");
 
     if weaponsReductionNumber > 1 orElse ammoReductionNumber > 1 orElse
-        drugsReductionNumber > 1 orElse miscReductionNumber > 1 then begin
-      encountersOnly = get_ini_setting(
-        INI_PATH "|lootReduction|encountersOnly");
+        drugsReductionNumber > 1 then begin
       excludedItems = string_split(
         get_ini_string(INI_PATH "|lootReduction|excludedItems"), ",");
       debuggingEnabled = get_ini_setting(INI_PATH "|debugging|lootReduction");
@@ -48,6 +41,21 @@ procedure start begin
         excludedItems[index] = atoi(value);
       end
       fix_array(excludedItems);
+
+      if weaponsReductionNumber > 1 then begin
+        weaponsProgress = load_array(SAVED_ARRAY_NAME);
+        if weaponsProgress == 0 then begin
+          weaponsProgress = {};
+          save_array(SAVED_ARRAY_NAME, weaponsProgress);
+        end
+
+        if debuggingEnabled == 1 then begin
+          foreach index: value in weaponsProgress begin
+            display_msg(proto_data(index, it_name) +
+              ", progress: " + value);
+          end
+        end
+      end
 
       register_hook_proc(HOOK_ONDEATH, onDeathHandler);
     end
@@ -64,20 +72,69 @@ procedure onDeathHandler begin
 
   variable
     inventoryContents = getInventoryContents(theDeceased),
-    index, value;
+    item, itemType;
 
-  foreach index: value in inventoryContents begin
-    if value == item_type_weapon andAlso weaponsReductionNumber > 1 andAlso
-        scan_array(excludedItems, obj_pid(index)) == -1 then begin
-
+  if debuggingEnabled == 1 then begin
+    display_msg("theDeceased: " + obj_name(theDeceased) +
+      ", inventoryContents:");
+    foreach item: itemType in inventoryContents begin
+      display_msg(
+        obj_name(item) +
+        ", type: " + itemType +
+        ", count: " + obj_is_carrying_obj(theDeceased, item)
+      );
     end
   end
 
-  if debuggingEnabled == 1 then begin
-    display_msg("theDeceased, name: " + obj_name(theDeceased));
-    display_msg("inventoryContents:");
-    foreach index: value in inventoryContents begin
-      display_msg(obj_name(index) + ": " + value);
+  foreach item: itemType in inventoryContents begin
+    if itemType == item_type_weapon andAlso weaponsReductionNumber > 1 andAlso
+        scan_array(excludedItems, obj_pid(item)) == -1 then begin
+      variable
+        itemPid = obj_pid(item),
+        itemName = obj_name(item),
+        progress = weaponsProgress[itemPid];
+
+      // Drop the first weapon of each kind.
+      if progress == 0 then progress = weaponsReductionNumber;
+
+      progress--;
+
+      variable
+        itemCount = obj_is_carrying_obj(theDeceased, item),
+        removeCount = itemCount - (itemCount + progress) / weaponsReductionNumber;
+
+      // A variable is needed for this function to work.
+      variable didDestroy = destroy_mult_objs(item, removeCount);
+
+      if debuggingEnabled == 1 then begin
+        display_msg(
+          itemName +
+          ", count: " + itemCount +
+          ", progress: " + (progress + 1) +
+          ", removeCount: " + removeCount
+        );
+      end
+
+      progress = (progress + itemCount) % weaponsReductionNumber;
+
+      if debuggingEnabled == 1 then begin
+        display_msg("progress: " + (progress + 1));
+      end
+
+      weaponsProgress[itemPid] = progress + 1;
+
+      display_msg(itemName + ", " + (progress + 1) + "/" + weaponsReductionNumber);
+    end
+
+    if itemType == item_type_ammo andAlso ammoReductionNumber > 1 andAlso
+        scan_array(excludedItems, obj_pid(item)) == -1 then begin
+      variable stackSize = get_proto_data(obj_pid(item), PROTO_AM_PACK_SIZE);
+
+      display_msg(obj_name(item) + ", stack size: " + stackSize);
+    end
+
+    if itemType == item_type_drug andAlso drugsReductionNumber > 1 andAlso
+        scan_array(excludedItems, obj_pid(item)) == -1 then begin
     end
   end
 end
@@ -92,4 +149,18 @@ procedure getInventoryContents(variable critter) begin
   end
 
   return inventoryContents;
+end
+
+// To do:
+// 1. itemCount = itemCount / reductionNumber.
+// 2. If > 1, we are done. If < 1, make it 1.
+// 3. Destroy 1 item with a chance? The chance is:
+// itemCount / reductionNumber
+// For example, 3 items, 10 reductionNumber. Need 0.3 items on average.
+// 3 / 10
+procedure reduceItemCountRandomly(
+  variable critter,
+  variable item,
+  variable reductionNumber)
+begin
 end

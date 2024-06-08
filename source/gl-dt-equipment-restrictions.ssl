@@ -76,22 +76,22 @@ end
 
 procedure getArmorPid(variable armor) begin
   variable armorPids = {
-    "ROBES":                      113,
-    "BRIDGEKEEPERS_ROBES":        524,
-    "LEATHER_JACKET":             74,
-    "COMBAT_LEATHER_JACKET":      265,
-    "LEATHER_ARMOR":              1,
-    "LEATHER_ARMOR_MK_II":        379,
-    "METAL_ARMOR":                2,
-    "METAL_ARMOR_MK_II":          380,
-    "TESLA_ARMOR":                240,
-    "COMBAT_ARMOR":               17,
-    "COMBAT_ARMOR_MK_II":         381,
-    "BROTHERHOOD_ARMOR":          239,
-    "POWER_ARMOR":                3,
-    "HARDENED_POWER_ARMOR":       232,
-    "ADVANCED_POWER_ARMOR":       348,
-    "ADVANCED_POWER_ARMOR_MK_II": 349
+    "ROBES":                      PID_PURPLE_ROBE,
+    "BRIDGEKEEPERS_ROBES":        PID_BRIDGEKEEPERS_ROBE,
+    "LEATHER_JACKET":             PID_LEATHER_JACKET,
+    "COMBAT_LEATHER_JACKET":      PID_CURED_LEATHER_ARMOR,
+    "LEATHER_ARMOR":              PID_LEATHER_ARMOR,
+    "LEATHER_ARMOR_MK_II":        PID_LEATHER_ARMOR_MK_II,
+    "METAL_ARMOR":                PID_METAL_ARMOR,
+    "METAL_ARMOR_MK_II":          PID_METAL_ARMOR_MK_II,
+    "TESLA_ARMOR":                PID_TESLA_ARMOR,
+    "COMBAT_ARMOR":               PID_COMBAT_ARMOR,
+    "COMBAT_ARMOR_MK_II":         PID_COMBAT_ARMOR_MK_II,
+    "BROTHERHOOD_ARMOR":          PID_BROTHERHOOD_COMBAT_ARMOR,
+    "POWER_ARMOR":                PID_POWERED_ARMOR,
+    "HARDENED_POWER_ARMOR":       PID_HARDENED_POWER_ARMOR,
+    "ADVANCED_POWER_ARMOR":       PID_ADVANCED_POWER_ARMOR,
+    "ADVANCED_POWER_ARMOR_MK_II": PID_ADVANCED_POWER_ARMOR_MK2
   };
 
   armor = string_toupper(armor);

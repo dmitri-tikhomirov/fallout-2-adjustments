@@ -169,6 +169,10 @@ procedure builtInFunctions begin
     obj_name(critter_inven_obj(dude_obj, INVEN_TYPE_WORN)));
   display_msg("obj_name(inven_ptr(dude_obj, 0)): " +
     obj_name(inven_ptr(dude_obj, 0)));
+  // Takes item object parameter (not item PID).
+  // Works correctly with different stacks of the same item.
+  display_msg("obj_is_carrying_obj(dude_obj, inven_ptr(dude_obj, 0)): " +
+    obj_is_carrying_obj(dude_obj, inven_ptr(dude_obj, 0)));
 end
 
 procedure barterPriceHandler begin
@@ -329,7 +333,7 @@ procedure keyPressHandler begin
   );
 
   if builtInFunctionsEnabled andAlso
-      keyCode == 41 andAlso eventType == 0 then begin
+      keyCode == KEY_CODE_TILDE andAlso eventType == 0 then begin
     call builtInFunctions;
   end
 end

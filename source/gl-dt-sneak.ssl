@@ -8,21 +8,12 @@ variable
   failSneakChecksInCombat,
   debuggingEnabled;
 
-variable
-  sneakPenalty,
-  equippedArmor,
-  modifiedSneak,
-  isPenaltyApplied;
-
 procedure sneakHandler;
-procedure gameModeChangeHandler;
 procedure inventoryMoveHandler;
+procedure gameModeChangeHandler;
 
-procedure applySneakPenalty;
-procedure calculateSneakPenalty;
-procedure restoreSneakPenalty;
-procedure removeSneakPenalty;
-procedure getSneakCheckDuration(variable sneak);
+procedure calculateSneakPenalty(variable sneak, variable armor);
+procedure getSneakCheckDuration(variable sneak, variable sneakCheckResult);
 
 procedure start begin
   if game_loaded then begin
@@ -38,70 +29,64 @@ procedure start begin
     end
 
     if armorPenaltyEnabled == 1 then begin
-      isPenaltyApplied = false;
-
-      register_hook_proc(HOOK_GAMEMODECHANGE, gameModeChangeHandler);
       register_hook_proc(HOOK_INVENTORYMOVE, inventoryMoveHandler);
+      register_hook_proc(HOOK_GAMEMODECHANGE, gameModeChangeHandler);
     end
   end
 end
 
 procedure sneakHandler begin
-  variable isSneakRerolled = false;
+  variable
+    sneakCheckResult,
+    isSneakRerolled = false;
 
+  // Fail sneak roll in combat.
   if combat_is_initialized andAlso failSneakChecksInCombat == 1 then begin
     set_sfall_return(0);
 
     if debuggingEnabled == 1 then display_msg("Failed sneak check in combat.");
+    sneakCheckResult = 0;
     isSneakRerolled = true;
   end
 
-  if armorPenaltyEnabled == 1 andAlso applySneakPenalty then begin
-    if not(isSneakRerolled) then begin
-      set_sfall_return(is_success(roll_vs_skill(dude_obj, SKILL_SNEAK, 0)));
+  if armorPenaltyEnabled == 1 then begin
+    variable
+      sneak = has_skill(dude_obj, SKILL_SNEAK),
+      armor = critter_inven_obj(dude_obj, INVEN_TYPE_WORN),
+      sneakPenalty = calculateSneakPenalty(sneak, armor);
 
-      if debuggingEnabled == 1 then display_msg("Rerolled sneak.");
+    if sneakPenalty > 0 then begin
+      // Apply sneak penalty.
+      critter_mod_skill(dude_obj, SKILL_SNEAK, -sneakPenalty);
+      if debuggingEnabled == 1 then display_msg("Applied sneak penalty.");
+      sneak -= sneakPenalty;
+
+      // Reroll sneak.
+      if not(isSneakRerolled) then begin
+        sneakCheckResult = is_success(roll_vs_skill(dude_obj, SKILL_SNEAK, 0));
+
+        set_sfall_return(sneakCheckResult);
+
+        if debuggingEnabled == 1 then begin
+          display_msg("Rerolled sneak, sneakCheckResult: " + sneakCheckResult);
+        end
+      end
+
+      if debuggingEnabled == 1 then begin
+        display_msg(
+          "sneakCheckDuration: " + get_sfall_arg_at(1) +
+          ", newSneak: " + sneak +
+          ", newDuration: " + getSneakCheckDuration(sneak, sneakCheckResult)
+        );
+      end
+
+      // Update sneak check duration.
+      set_sfall_return(getSneakCheckDuration(sneak, sneakCheckResult));
+
+      // Remove sneak penalty.
+      critter_mod_skill(dude_obj, SKILL_SNEAK, sneakPenalty);
+      if debuggingEnabled == 1 then display_msg("Removed sneak penalty.");
     end
-
-    if debuggingEnabled == 1 then begin
-      variable sneakCheckDuration = get_sfall_arg_at(1);
-      display_msg(
-        "sneakCheckDuration: " + sneakCheckDuration +
-        ", newDuration: " + getSneakCheckDuration(modifiedSneak)
-      );
-    end
-
-    set_sfall_return(getSneakCheckDuration(modifiedSneak));
-  end
-end
-
-procedure gameModeChangeHandler begin
-  variable
-    previousGameMode = get_sfall_arg_at(1),
-    currentGameMode = get_game_mode;
-
-  // Opening the character screen.
-  if not(previousGameMode bwand CHARSCREEN) andAlso
-      currentGameMode bwand CHARSCREEN then begin
-    // Remove the penalty to prevent abusing armor debuff.
-    if isPenaltyApplied then call removeSneakPenalty;
-
-    // If in sneak mode, recalculate the penalty and inform the player.
-    if using_skill(dude_obj, SKILL_SNEAK) andAlso
-        debuggingEnabled != 1 then begin
-      display_msg("Sneak penalty from armor: " + calculateSneakPenalty +
-        " point(s).");
-    end
-
-    return;
-  end
-
-  // Do not save the penalty when saving the game.
-  if not(previousGameMode bwand SAVEGAME) andAlso
-      currentGameMode bwand SAVEGAME then begin
-    if isPenaltyApplied then call removeSneakPenalty;
-
-    return;
   end
 end
 
@@ -119,82 +104,67 @@ procedure inventoryMoveHandler begin
   end
 end
 
-procedure applySneakPenalty begin
-  if not(isPenaltyApplied) then call restoreSneakPenalty;
-
+// Inform about the penalty when opening the character screen.
+procedure gameModeChangeHandler begin
   variable
-    armor = critter_inven_obj(dude_obj, INVEN_TYPE_WORN),
-    sneak = has_skill(dude_obj, SKILL_SNEAK);
+    previousGameMode = get_sfall_arg_at(1),
+    currentGameMode = get_game_mode;
 
-  // Recalculate sneak penalty only if sneak points or armor have changed.
-  if sneak != modifiedSneak orElse armor != equippedArmor then begin
-    call removeSneakPenalty;
-    modifiedSneak = sneak + sneakPenalty;
+  if not(previousGameMode bwand CHARSCREEN) andAlso
+      currentGameMode bwand CHARSCREEN then begin
+    if using_skill(dude_obj, SKILL_SNEAK) then begin
+      variable
+        sneak = has_skill(dude_obj, SKILL_SNEAK),
+        armor = critter_inven_obj(dude_obj, INVEN_TYPE_WORN);
 
-    sneakPenalty = calculateSneakPenalty;
-    critter_mod_skill(dude_obj, SKILL_SNEAK, -sneakPenalty);
-
-    modifiedSneak -= sneakPenalty;
-    equippedArmor = armor;
-    isPenaltyApplied = true;
-    if debuggingEnabled == 1 then display_msg("Applied sneak penalty.");
-
-    return true; // Did recalculate.
-  end else begin
-    if debuggingEnabled == 1 then begin
-      display_msg("Sneak penalty is already applied.");
+      display_msg("Sneak penalty from armor: " +
+        calculateSneakPenalty(sneak, armor) + " point(s).");
     end
-
-    return false; // Didn't need to recalculate.
   end
 end
 
-procedure calculateSneakPenalty begin
+procedure calculateSneakPenalty(variable sneak, variable armor) begin
   variable
-    armor = critter_inven_obj(dude_obj, INVEN_TYPE_WORN),
-    armorWeight = proto_data(obj_pid(armor), it_weight),
-    sneak = has_skill(dude_obj, SKILL_SNEAK),
-    calculatedSneakPenalty = floor(0.025 * (armorWeight - 10) * sneak);
+    armorPid = obj_pid(armor),
+    armorWeight = proto_data(armorPid, it_weight);
 
-  if calculatedSneakPenalty > 0 then begin
+  // All types of power armor have their proto weight divided by 2,
+  // because power armor had 2x weight in Fallout 1.
+  if armorPid == PID_POWERED_ARMOR orElse
+      armorPid == PID_HARDENED_POWER_ARMOR orElse
+      armorPid == PID_ADVANCED_POWER_ARMOR orElse
+      armorPid == PID_ADVANCED_POWER_ARMOR_MK2 then begin
+    armorWeight /= 2;
+  end
+
+  variable penalty = floor(0.025 * (armorWeight - 10) * sneak);
+
+  if penalty > 0 then begin
     // Tagged skill can be adjusted by 2 points minimum.
-    if is_skill_tagged(SKILL_SNEAK) andAlso
-        calculatedSneakPenalty % 2 then begin
-      calculatedSneakPenalty--;
-    end
-  end else calculatedSneakPenalty = 0;
+    if is_skill_tagged(SKILL_SNEAK) andAlso penalty % 2 then penalty--;
+  end else penalty = 0;
 
   if debuggingEnabled == 1 then begin
     display_msg("Calculated sneak penalty.");
     display_msg(
       "sneak: " + sneak +
-      ", penalty: " + calculatedSneakPenalty +
-      ", armor weight: " + armorWeight
+      ", penalty: " + penalty +
+      ", armorWeight: " + armorWeight
     );
   end
 
-  return calculatedSneakPenalty;
+  return penalty;
 end
 
-procedure restoreSneakPenalty begin
-  critter_mod_skill(dude_obj, SKILL_SNEAK, -sneakPenalty);
-  isPenaltyApplied = true;
-  if debuggingEnabled == 1 then display_msg("Restored sneak penalty.");
-end
-
-procedure removeSneakPenalty begin
-  critter_mod_skill(dude_obj, SKILL_SNEAK, sneakPenalty);
-  isPenaltyApplied = false;
-  if debuggingEnabled == 1 then display_msg("Removed sneak penalty.");
-end
-
-procedure getSneakCheckDuration(variable sneak) begin
+procedure getSneakCheckDuration(variable sneak, variable sneakCheckResult) begin
   variable
-    sneakValues = [81, 101, 136, 171, 201, 250],
+    sneakValues = [81, 101, 136, 171, 201, 251],
     sneakCheckDurations = [40, 30, 20, 15, 12, 10],
     sneakCheckDuration = 60,
     index = 0,
     sneakValuesLength = len_array(sneakValues);
+
+  if sneakCheckResult == 1 then return game_ticks(sneakCheckDuration);
 
   while sneak >= sneakValues[index] andAlso index < sneakValuesLength do begin
     index++;
