@@ -18,6 +18,10 @@ variable weaponsProgress;
 procedure onDeathHandler;
 
 procedure getInventoryContents(variable critter);
+procedure reduceWeapons(variable critter, variable weapon,
+  variable reductionNumber);
+procedure reduceNonWeaponItems(variable critter, variable item,
+  variable reductionNumber);
 
 procedure start begin
   if game_loaded then begin
@@ -89,52 +93,23 @@ procedure onDeathHandler begin
   foreach item: itemType in inventoryContents begin
     if itemType == item_type_weapon andAlso weaponsReductionNumber > 1 andAlso
         scan_array(excludedItems, obj_pid(item)) == -1 then begin
-      variable
-        itemPid = obj_pid(item),
-        itemName = obj_name(item),
-        progress = weaponsProgress[itemPid];
+      call reduceWeapons(theDeceased, item, weaponsReductionNumber);
 
-      // Drop the first weapon of each kind.
-      if progress == 0 then progress = weaponsReductionNumber;
-
-      progress--;
-
-      variable
-        itemCount = obj_is_carrying_obj(theDeceased, item),
-        removeCount = itemCount - (itemCount + progress) / weaponsReductionNumber;
-
-      // A variable is needed for this function to work.
-      variable didDestroy = destroy_mult_objs(item, removeCount);
-
-      if debuggingEnabled == 1 then begin
-        display_msg(
-          itemName +
-          ", count: " + itemCount +
-          ", progress: " + (progress + 1) +
-          ", removeCount: " + removeCount
-        );
-      end
-
-      progress = (progress + itemCount) % weaponsReductionNumber;
-
-      if debuggingEnabled == 1 then begin
-        display_msg("progress: " + (progress + 1));
-      end
-
-      weaponsProgress[itemPid] = progress + 1;
-
-      display_msg(itemName + ", " + (progress + 1) + "/" + weaponsReductionNumber);
+      continue;
     end
 
     if itemType == item_type_ammo andAlso ammoReductionNumber > 1 andAlso
         scan_array(excludedItems, obj_pid(item)) == -1 then begin
-      variable stackSize = get_proto_data(obj_pid(item), PROTO_AM_PACK_SIZE);
+      call reduceNonWeaponItems(theDeceased, item, ammoReductionNumber);
 
-      display_msg(obj_name(item) + ", stack size: " + stackSize);
+      continue;
     end
 
     if itemType == item_type_drug andAlso drugsReductionNumber > 1 andAlso
         scan_array(excludedItems, obj_pid(item)) == -1 then begin
+      call reduceNonWeaponItems(theDeceased, item, drugsReductionNumber);
+
+      continue;
     end
   end
 end
@@ -151,16 +126,62 @@ procedure getInventoryContents(variable critter) begin
   return inventoryContents;
 end
 
-// To do:
-// 1. itemCount = itemCount / reductionNumber.
-// 2. If > 1, we are done. If < 1, make it 1.
-// 3. Destroy 1 item with a chance? The chance is:
-// itemCount / reductionNumber
-// For example, 3 items, 10 reductionNumber. Need 0.3 items on average.
-// 3 / 10
-procedure reduceItemCountRandomly(
-  variable critter,
-  variable item,
-  variable reductionNumber)
-begin
+procedure reduceWeapons(variable critter, variable weapon,
+    variable reductionNumber) begin
+  variable
+    weaponPid = obj_pid(weapon),
+    weaponName = obj_name(weapon),
+    progress = weaponsProgress[weaponPid];
+
+  // Drop the first weapon of each kind.
+  if progress == 0 then progress = reductionNumber;
+
+  progress--;
+
+  variable
+    weaponCount = obj_is_carrying_obj(critter, weapon),
+    removeCount = weaponCount -
+      (weaponCount + progress) / reductionNumber;
+
+  // A variable is needed for this function to work.
+  variable didDestroy = destroy_mult_objs(weapon, removeCount);
+
+  if debuggingEnabled == 1 then begin
+    display_msg(
+      weaponName +
+      ", count: " + weaponCount +
+      ", progress: " + (progress + 1) +
+      ", removeCount: " + removeCount
+    );
+  end
+
+  progress = (progress + weaponCount) % reductionNumber + 1;
+
+  if debuggingEnabled == 1 then begin
+    display_msg("progress: " + progress);
+  end
+
+  weaponsProgress[weaponPid] = progress;
+
+  display_msg(weaponName + ", " + progress + "/" + reductionNumber);
+end
+
+procedure reduceNonWeaponItems(variable critter, variable item,
+    variable reductionNumber) begin
+  variable
+    itemCount = obj_is_carrying_obj(critter, item),
+    removeCount = itemCount - itemCount / reductionNumber;
+
+  // Always leave at least one item (the first item is never destroyed).
+  if itemCount % reductionNumber != 0 then removeCount -= 1;
+
+  variable didDestroy = destroy_mult_objs(item, removeCount);
+
+  if debuggingEnabled == 1 then begin
+    display_msg(
+      obj_name(item) +
+      ", itemCount: " + itemCount +
+      ", removeCount: " + removeCount
+    );
+  end
 end

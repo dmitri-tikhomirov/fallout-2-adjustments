@@ -11,7 +11,7 @@ The mod is fully modular. Each component can be disabled in the `.ini` file. Dis
 ## Components
 
 - Custom keyboard controls. Default settings:
-  - The keys for opening inventory and skilldex now also close them. The key for inventory also closes the "looting containers" window and the "use inventory item on" (the backpack icon) window.
+  - The keys for opening inventory and skilldex now also close them. The key for inventory closes not only the main inventory but also the "looting containers" window and the "use inventory item on" (the backpack icon) window.
   - `E`: Inventory.
   - `Q`: Pip-Boy. "Q" for "Quests".
   - `V`: Center camera on the player. "V" for "View".
@@ -35,6 +35,9 @@ The mod is fully modular. Each component can be disabled in the `.ini` file. Dis
   - Heavy armor penalizes sneak skill, by a percentage, depending on armor weight. All kinds of leather armor are light enough for a 0% penalty. The heaviest armor in the game = 100% penalty (meaning sneak becomes 0). You won't be able to put on armor while in sneak mode.
     - To see the current penalty, open the character screen while in sneak mode. Once you do this, a text message will be added.
   - In combat mode, sneak checks are always failed. This does not mean that sneaking in combat is completely useless. But it does make it harder to exploit sneak in combat. For example, it prevents spamming sneak many times to close combat.
+- Loot reduction.
+  - In the vanilla game, the overabundance of loot from fallen enemies (especially the amount of weapons) breaks the economy and makes money meaningless as early as after about one third through the game. This component greatly reduces loot from enemy corpses and keeps the economy relevant until late game.
+  - For weapons, the loot from enemy corpses is reduced 10 times (configurable). The 1st weapon of each kind is always left, then every 10th weapon is left and 9/10 are destroyed. You will see progress messages (1/10, 2/10, 3/10, etc.) added on enemy deaths for the weapon types the enemies were carrying.
 - Settings transfer.
   - Disabled by default. A tool to help you automatically transfer settings between old and new `.ini` files. Useful when updating mods if you have a lot of custom settings.
 
@@ -51,7 +54,7 @@ To install the mod:
 1. If you have `mods_order.txt` inside your `mods` folder, add `fallout-2-adjustments` (this exact line) to it.
 1. To configure settings, edit `fallout-2-adjustments.ini`.
 
-To uninstall, delete the files. To disable without deleting, remove the line from `mods_order.txt`.
+To uninstall, delete the files. To temporarily disable without deleting, remove the line from `mods_order.txt`.
 
 ## Compatibility
 
@@ -74,11 +77,15 @@ For a close to vanilla but improved experience:
   - Maps for Restoration Project that look closer to the original game.
 - [FO2tweaks](https://github.com/BGforgeNet/FO2tweaks).
   - Contains a good damage formula and some quality of life features. There are options to disable everything you don't need. Be careful when disabling changes to knockback, you need to put "-1" instead of "0".
+- [Talking Heads Addon](https://www.nexusmods.com/fallout2/mods/45).
+  - Adds animated portraits to many characters.
 
 ## Thanks to
 
 Posts and code written by these authors helped me learn (the basics of) Fallout 2 modding:
 
-- phobos2077, [EcCo Gameplay Overhaul](https://github.com/phobos2077/fo2_ecco).
+- Phobos2077, [EcCo Gameplay Overhaul](https://github.com/phobos2077/fo2_ecco).
 - Magus at BGforge, [FO2tweaks](https://github.com/BGforgeNet/FO2tweaks).
-- dekrus, [Fallout2MechanicsMiniRework](https://github.com/dekrus/Fallout2MechanicsMiniRework).
+- Dekrus, [Fallout2MechanicsMiniRework](https://github.com/dekrus/Fallout2MechanicsMiniRework).
+
+Check out [EcCo Gameplay Overhaul](https://github.com/phobos2077/fo2_ecco) and [Fallout2MechanicsMiniRework](https://github.com/dekrus/Fallout2MechanicsMiniRework) for a different gameplay experience.
