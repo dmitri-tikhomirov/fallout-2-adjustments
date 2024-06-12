@@ -13,9 +13,12 @@ variable
   excludedItems,
   debuggingEnabled;
 
-variable weaponsProgress;
+variable
+  weaponsProgress,
+  partyMemberList;
 
 procedure onDeathHandler;
+procedure gameModeChangeHandler;
 
 procedure getInventoryContents(variable critter);
 procedure reduceWeapons(variable critter, variable weapon,
@@ -53,15 +56,21 @@ procedure start begin
           save_array(SAVED_ARRAY_NAME, weaponsProgress);
         end
 
-        if debuggingEnabled == 1 then begin
-          foreach index: value in weaponsProgress begin
-            display_msg(proto_data(index, it_name) +
-              ", progress: " + value);
+        // In case the reduction number was changed in settings.
+        foreach index: value in weaponsProgress begin
+          if value > weaponsReductionNumber then value = weaponsReductionNumber;
+
+          if debuggingEnabled == 1 then begin
+            display_msg(proto_data(index, it_name) + ", progress: " + value);
           end
         end
       end
 
+      partyMemberList = party_member_list(0);
+      fix_array(partyMemberList);
+
       register_hook_proc(HOOK_ONDEATH, onDeathHandler);
+      register_hook_proc(HOOK_GAMEMODECHANGE, gameModeChangeHandler);
     end
   end
 end
@@ -69,7 +78,8 @@ end
 procedure onDeathHandler begin
   variable theDeceased = get_sfall_arg_at(0);
 
-  if party_member_obj(obj_pid(theDeceased)) orElse
+  // Check if the deceased critter was a party member before death.
+  if scan_array(partyMemberList, theDeceased) != -1 orElse
       theDeceased == dude_obj then begin
     return;
   end
@@ -114,16 +124,17 @@ procedure onDeathHandler begin
   end
 end
 
-procedure getInventoryContents(variable critter) begin
-  variable inventoryContents = {}, slotNumber = 0;
+// Update party member list after exiting dialogue.
+procedure gameModeChangeHandler begin
+  variable
+    previousGameMode = get_sfall_arg_at(1),
+    currentGameMode = get_game_mode;
 
-  while inven_ptr(critter, slotNumber) do begin
-    inventoryContents[inven_ptr(critter, slotNumber)] =
-      obj_item_subtype(inven_ptr(critter, slotNumber));
-    slotNumber++;
+  if previousGameMode bwand DIALOG andAlso
+      not(currentGameMode bwand DIALOG) then begin
+    partyMemberList = party_member_list(0);
+    fix_array(partyMemberList);
   end
-
-  return inventoryContents;
 end
 
 procedure reduceWeapons(variable critter, variable weapon,
@@ -184,4 +195,16 @@ procedure reduceNonWeaponItems(variable critter, variable item,
       ", removeCount: " + removeCount
     );
   end
+end
+
+procedure getInventoryContents(variable critter) begin
+  variable inventoryContents = {}, slotNumber = 0;
+
+  while inven_ptr(critter, slotNumber) do begin
+    inventoryContents[inven_ptr(critter, slotNumber)] =
+      obj_item_subtype(inven_ptr(critter, slotNumber));
+    slotNumber++;
+  end
+
+  return inventoryContents;
 end

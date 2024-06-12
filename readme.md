@@ -77,8 +77,6 @@ For a close to vanilla but improved experience:
   - Maps for Restoration Project that look closer to the original game.
 - [FO2tweaks](https://github.com/BGforgeNet/FO2tweaks).
   - Contains a good damage formula and some quality of life features. There are options to disable everything you don't need. Be careful when disabling changes to knockback, you need to put "-1" instead of "0".
-- [Talking Heads Addon](https://www.nexusmods.com/fallout2/mods/45).
-  - Adds animated portraits to many characters.
 
 ## Thanks to
 
